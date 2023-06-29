@@ -1,0 +1,1 @@
+types in https://github.com/D-WIS/ADCSSoftwareInterface/blob/main/ADCSSoftwareInterface.md#511-operational
