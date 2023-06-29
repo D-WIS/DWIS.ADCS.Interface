@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Temperature
+public enum Temperature: EngineeringUnit
 {
 	kelvin,
 	celsius,

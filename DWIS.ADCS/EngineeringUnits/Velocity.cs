@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Velocity
+public enum Velocity: EngineeringUnit
 {
 	meters_per_second,
 	meters_per_hour,

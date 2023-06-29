@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Pressure
+public enum Pressure: EngineeringUnit
 {
 	pascal,
 	bar,

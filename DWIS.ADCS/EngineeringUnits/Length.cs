@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Length
+public enum Length: EngineeringUnit
 {
 	meter,
 	feet,

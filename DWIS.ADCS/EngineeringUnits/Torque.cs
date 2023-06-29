@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Torque
+public enum Torque: EngineeringUnit
 {
 	newton_meters,
 	foot_pounds,

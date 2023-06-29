@@ -1,7 +1,6 @@
 ﻿namespace DWIS.EngineeringUnits;
 
-
-public enum AngularVelocity
+public enum AngularVelocity : EngineeringUnit
 {
 	radians_per_second,
 	degrees_per_second,

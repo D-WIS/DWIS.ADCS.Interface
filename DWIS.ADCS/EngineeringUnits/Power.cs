@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Power
+public enum Power: EngineeringUnit
 {
 	watt,
 	joule,
