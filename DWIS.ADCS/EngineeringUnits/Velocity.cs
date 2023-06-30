@@ -1,11 +1,11 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Velocity: EngineeringUnit
+public record Velocity : IEngineeringUnit
 {
-	meters_per_second,
-	meters_per_hour,
-	feet_per_second,
-	feet_per_hour,
-	miles_per_hour,
-	kilometers_per_hour,
+	public record meters_per_second:IEngineeringUnit { }
+	public record meters_per_hour:IEngineeringUnit { }
+	public record feet_per_second:IEngineeringUnit { }
+	public record feet_per_hour:IEngineeringUnit { }
+	public record miles_per_hour:IEngineeringUnit { }
+	public record kilometers_per_hour:IEngineeringUnit { }
 }

@@ -1,8 +1,8 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Power: EngineeringUnit
+public record Power : IEngineeringUnit
 {
-	watt,
-	joule,
-	horsepower
+	public record watt:Power { }
+	public record joule:Power { }
+	public record horsepower :Power{ }
 }

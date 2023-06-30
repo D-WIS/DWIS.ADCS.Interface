@@ -1,10 +1,10 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Torque: EngineeringUnit
+public record Torque : IEngineeringUnit
 {
-	newton_meters,
-	foot_pounds,
-	foot_poundals,
-	inch_pounds,
-	meter_kilogram
+	public record newton_meters:Torque { }
+	public record foot_pounds:Torque { }
+	public record foot_poundals:Torque { }
+	public record inch_pounds:Torque { }
+	public record meter_kilogram:Torque { }
 }

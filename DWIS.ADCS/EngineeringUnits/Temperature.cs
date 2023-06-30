@@ -1,10 +1,10 @@
 namespace DWIS.EngineeringUnits;
 
-public enum Temperature: EngineeringUnit
+public record Temperature : IEngineeringUnit
 {
-	kelvin,
-	celsius,
-	fahrenheit,
-	raemur,
-	rankine
+	public record kelvin:Temperature { }
+	public record celsius:Temperature { }
+	public record fahrenheit:Temperature { }
+	public record raemur:Temperature { }
+	public record rankine:Temperature { }
 }

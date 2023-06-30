@@ -1,6 +1,6 @@
 namespace DWIS.Types;
 
-public struct TimeStamp
+public struct Timestamp
 {
 	long Sec;
 	ulong NanoSec;

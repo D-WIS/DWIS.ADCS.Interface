@@ -1,2 +1,3 @@
 .vs/
-DWIS.ADCS/obj/
+obj/
+bin/

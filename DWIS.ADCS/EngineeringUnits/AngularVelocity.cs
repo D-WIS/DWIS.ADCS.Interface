@@ -1,8 +1,11 @@
 ﻿namespace DWIS.EngineeringUnits;
 
-public enum AngularVelocity : EngineeringUnit
+public abstract record AngularVelocity : IEngineeringUnit
 {
-	radians_per_second,
-	degrees_per_second,
-	revolutions_per_minute
+	[Unit(1)]
+	public record degrees_per_second:AngularVelocity { }
+	[Unit(57.29578)]
+	public record radians_per_second :AngularVelocity{ }
+	[Unit(360/60)]
+	public record revolutions_per_minute:AngularVelocity { }
 }
