@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public record Power : IEngineeringUnit
+public abstract record Power : IEngineeringUnit
 {
 	[Unit(1)]
 	public record watt:Power { }

@@ -1,7 +1,7 @@
 ﻿namespace DWIS.EngineeringUnits;
-[System.AttributeUsage(System.AttributeTargets.Class)
-]
-public class UnitAttribute : System.Attribute
+
+[System.AttributeUsage(AttributeTargets.Class)]
+public class UnitAttribute : Attribute
 {
 	public double Factor;
 	public readonly double Bias;

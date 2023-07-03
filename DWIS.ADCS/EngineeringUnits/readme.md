@@ -1,14 +1,16 @@
 types in https://github.com/D-WIS/ADCSSoftwareInterface/blob/main/ADCSSoftwareInterface.md#59-units
 
-
-## Unit Converion Design
+## Unit Of Measure Design
 
 > valueTo = ValueFrom * Factor + Bias
 
 Unit attribute applied on unit i.e.,
 ```
+// an abstract record Dimension: Length
 public abstract record Length : IEngineeringUnit
 {
+	// an unit derived from the Dimension: Length
+	// we chose the SI unit as the base of all the units in the Dimension
 	[Unit(1)]
 	public record meter: Length
 	{
