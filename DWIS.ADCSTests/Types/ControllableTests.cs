@@ -9,7 +9,7 @@ public class ControllableTests
 	public void setTargetValueTest()
 	{
 		// none unit
-		var u = new Controllable<bool, NonUnit>();
+		var u = new Controllable<bool, UnitLess>();
 		u.TargetValue = true;
 		Assert.True(u.TargetValue);
 
