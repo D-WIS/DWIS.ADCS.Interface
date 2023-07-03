@@ -3,7 +3,3 @@
 public interface IEngineeringUnit
 {
 }
-
-public class NonUnit: IEngineeringUnit
-{
-}

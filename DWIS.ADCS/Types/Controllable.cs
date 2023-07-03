@@ -6,22 +6,18 @@ namespace DWIS.Types;
 public record Controllable<T, Eu> where Eu : IEngineeringUnit, new()
 {
 	// todo: add this to standard?
-	public T Value { get; protected set; }
-	public void SetTargetValue(T value)
-	{
-		Value = value;
-	}
+	public T TargetValue { get; set; }
 
 	public void SetTargetValue<Euv>(T value) where Euv : IEngineeringUnit, new()
 	{
-		Value = ConvertUnit<Euv,Eu>(value);
+		TargetValue = ConvertUnit<Euv,Eu>(value);
 	}
 	// todo: add this to standard?
 	public Controllable<T, Eut> ToUnit<Eut>() where Eut : IEngineeringUnit, new()
 	{
 		return new Controllable<T, Eut>
 		{
-			Value = ConvertUnit<Eu, Eut>(Value)
+			TargetValue = ConvertUnit<Eu, Eut>(TargetValue)
 		};
 
 	}
