@@ -1,5 +1,5 @@
 ﻿namespace DWIS.EngineeringUnits;
 
-public interface IEngineeringUnit
+public interface IUnit
 {
 }

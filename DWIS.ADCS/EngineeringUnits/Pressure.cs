@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public abstract record Pressure : IEngineeringUnit
+public abstract record Pressure : IUnit
 {
 	[Unit(1)]
 	public record pascal:Pressure { }

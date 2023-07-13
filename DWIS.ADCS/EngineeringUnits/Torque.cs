@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public abstract record Torque : IEngineeringUnit
+public abstract record Torque : IUnit
 {
 	[Unit(1)]
 	public record newton_meters:Torque { }

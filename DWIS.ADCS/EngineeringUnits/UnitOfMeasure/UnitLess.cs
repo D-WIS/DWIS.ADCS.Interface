@@ -1,5 +1,5 @@
 ﻿namespace DWIS.EngineeringUnits;
 
-public class UnitLess: IEngineeringUnit
+public class UnitLess: IUnit
 {
 }

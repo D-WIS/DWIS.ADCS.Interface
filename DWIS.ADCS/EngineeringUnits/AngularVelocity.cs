@@ -1,6 +1,6 @@
 ﻿namespace DWIS.EngineeringUnits;
 
-public abstract record AngularVelocity : IEngineeringUnit
+public abstract record AngularVelocity : IUnit
 {
 	[Unit(1)]
 	public record degrees_per_second:AngularVelocity { }

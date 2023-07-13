@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public abstract record Length : IEngineeringUnit
+public abstract record Length : IUnit
 {
 	[Unit(1)]
 	public record meter: Length

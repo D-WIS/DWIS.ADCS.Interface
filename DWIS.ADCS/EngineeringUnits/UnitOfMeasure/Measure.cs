@@ -3,16 +3,16 @@ using System.Reflection;
 
 namespace DWIS.ADCS.EngineeringUnits;
 
-public record Measure<T, U> where U : IEngineeringUnit, new()
+public record Measure<T, U> where U : IUnit, new()
 {
 	public T Value { get; set; }
 
-	public void SetValue<Uv>(T value) where Uv : IEngineeringUnit, new()
+	public void SetValue<Uv>(T value) where Uv : IUnit, new()
 	{
 		Value = ConvertUnit<Uv, U>(value);
 	}
 
-	public Measure<T, Ut> ToUnit<Ut>() where Ut : IEngineeringUnit, new()
+	public Measure<T, Ut> ToUnit<Ut>() where Ut : IUnit, new()
 	{
 		return new Measure<T, Ut>
 		{
@@ -20,7 +20,7 @@ public record Measure<T, U> where U : IEngineeringUnit, new()
 		};
 
 	}
-	private static T ConvertUnit<Uf, Ut>(T value) where Ut : IEngineeringUnit, new() where Uf : IEngineeringUnit, new()
+	private static T ConvertUnit<Uf, Ut>(T value) where Ut : IUnit, new() where Uf : IUnit, new()
 	{
 		// rely on runtime check.
 		// bad C#, why not provide more type constrain ways in type parameter

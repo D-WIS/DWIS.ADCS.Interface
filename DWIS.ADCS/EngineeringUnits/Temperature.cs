@@ -1,6 +1,6 @@
 namespace DWIS.EngineeringUnits;
 
-public abstract record Temperature : IEngineeringUnit
+public abstract record Temperature : IUnit
 {
 	[Unit(1)]
 	public record celsius : Temperature { }

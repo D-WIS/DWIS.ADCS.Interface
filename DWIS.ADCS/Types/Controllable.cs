@@ -4,7 +4,7 @@ using DWIS.EngineeringUnits;
 
 namespace DWIS.Types;
 
-public record Controllable<T, Eu> where Eu : IEngineeringUnit, new()
+public record Controllable<T, Eu> where Eu : IUnit, new()
 {
 	Measure<T, Eu> _measure = new ();
 	// todo: add this to standard?
@@ -14,12 +14,12 @@ public record Controllable<T, Eu> where Eu : IEngineeringUnit, new()
 		set => _measure.Value = value;
 	}
 
-	public void SetTargetValue<Euv>(T value) where Euv : IEngineeringUnit, new()
+	public void SetTargetValue<Euv>(T value) where Euv : IUnit, new()
 	{
 		_measure.SetValue<Euv>(value);
 	}
 	// todo: add this to standard?
-	public Controllable<T, Eut> ToUnit<Eut>() where Eut : IEngineeringUnit, new()
+	public Controllable<T, Eut> ToUnit<Eut>() where Eut : IUnit, new()
 	{
 		return new Controllable<T, Eut>
 		{
