@@ -30,11 +30,21 @@ enum RequestStatus
 {
 	New, Abort, Completed
 }
+
+enum Method
+{
+	Symbol_Script, Symbol_Table, Surface_Equipment
+}
+
+enum DownlinkTypes
+{
+	OnBottomFlow, OnBottomRotation, OffBottomFlow, OffBottomRotation, Other, None
+}
 struct DownlinkRequestData
 {
 	RequestStatus requestStatus; 
-	Method method;         //{“Symbol_Script” | Symbol_Table” | “Surface_Equipment”}
-	DownlinkTypes type;           //{“OnBottomFlow” | “OnBottomRotation” | “OffBottomFlow” | “OffBottomRotation” | "Other" | "None"}
+	Method method;       
+	DownlinkTypes type;       
 	float durationSeconds;//Duration of the downlink
 	float delaySeconds;   //Requested start time of downlink from receipt of message. ommitted or “0” indicates immediately.
 	float delayDepth;     //Requested start depth of downlink from receipt of message. ommitted or “0” indicates immediately.
