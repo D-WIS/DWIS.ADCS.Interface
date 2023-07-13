@@ -4,3 +4,4 @@ Quesion:
 	
 1. for the third method: Surface_Equipment, where is its implementation
 1. why the 'DownlinkRequestData' has a method field
+1. what's the requestedDownlinkID used for?

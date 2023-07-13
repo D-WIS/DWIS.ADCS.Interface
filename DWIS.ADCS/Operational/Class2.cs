@@ -42,9 +42,9 @@ enum DownlinkTypes
 }
 struct DownlinkRequestData
 {
-	RequestStatus requestStatus; 
-	Method method;       
-	DownlinkTypes type;       
+	RequestStatus requestStatus;
+	Method method;
+	DownlinkTypes type;
 	float durationSeconds;//Duration of the downlink
 	float delaySeconds;   //Requested start time of downlink from receipt of message. ommitted or “0” indicates immediately.
 	float delayDepth;     //Requested start depth of downlink from receipt of message. ommitted or “0” indicates immediately.
@@ -60,8 +60,8 @@ struct DownlinkSymbols
 
 struct DownlinkSpecificationsData
 {
-	 DownlinkSymbols[]         downlinkSymbolsArray;   //Requested symbols
-	 int          downlinkIndex;          //Index of desired downlink from a 2 dimensional table shared in advance (Symbol_Table method)
+	DownlinkSymbols[] downlinkSymbolsArray;   //Requested symbols
+	int downlinkIndex;          //Index of desired downlink from a 2 dimensional table shared in advance (Symbol_Table method)
 }
 
 interface DownlinkRequest
