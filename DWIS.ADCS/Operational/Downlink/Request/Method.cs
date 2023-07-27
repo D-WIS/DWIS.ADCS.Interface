@@ -2,5 +2,5 @@
 
 public enum Method
 {
-	SymbolScript, SymbolTable, SurfaceEquipment
+    SymbolScript, SymbolTable, SurfaceEquipment
 }

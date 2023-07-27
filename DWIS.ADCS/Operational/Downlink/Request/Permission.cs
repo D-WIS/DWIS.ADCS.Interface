@@ -2,5 +2,5 @@
 
 public enum Permission
 {
-	Granted, Pending, Denied, Invalid
+    Granted, Pending, Denied, Invalid
 }

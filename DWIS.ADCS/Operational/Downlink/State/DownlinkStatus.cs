@@ -2,5 +2,5 @@
 
 public enum DownlinkStatus
 {
-	Scheduled, Running, Paused, Stopped, Completed, Aborted
+    Scheduled, Running, Paused, Stopped, Completed, Aborted
 }

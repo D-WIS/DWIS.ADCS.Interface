@@ -2,5 +2,5 @@
 
 public enum RequestStatus
 {
-	New, Abort, Completed
+    New, Abort, Completed
 }

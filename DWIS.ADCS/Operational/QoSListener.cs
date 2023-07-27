@@ -1,34 +1,34 @@
 ﻿namespace DWIS.ADCS.Operational;
 
-struct LivelinessLostStatus
+public class LivelinessLostStatus
 {
 	/// parameter list TBD
 };
 
-struct DataAvailableStatus
+public class DataAvailableStatus
 {
 	/// parameter list TBD
 };
 
-struct DeadlineMissedStatus
+public class DeadlineMissedStatus
 {
 	/// parameter list TBD
 };
 
-struct PublicationMatchedStatus
+public class PublicationMatchedStatus
 {
 	/// parameter list TBD
 };
 
-struct SubscriptionMatchedStatus
+public class SubscriptionMatchedStatus
 {
 	/// parameter list TBD
 };
 
-interface Listener { };
+public interface Listener { };
 
 // Quality of Service callbacks for data
-interface QoSListener : Listener
+public interface QoSListener : Listener
 {
 	// Notification that connectivity has been dropped.
 	void LivelinessLost( LivelinessLostStatus status);  

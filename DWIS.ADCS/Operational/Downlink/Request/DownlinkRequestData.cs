@@ -1,4 +1,5 @@
-﻿namespace DWIS.ADCS.Operational.Downlink;
+﻿
+namespace DWIS.ADCS.Operational.Downlink;
 
 public class DownlinkRequestData
 {
