@@ -11,7 +11,7 @@ interface IDownlinkRequest
 	public DownlinkRequestData RequestData { get; }
 	public DownlinkSpecificationsData SpecificationsData { get; }
 
-	public IQoSListener Listener { get; set; }
+	public ADCS Listener { get; set; }
 	// should we add this method?
 	public bool SetDownlinkSymbolTable(DownlinkSymbol[][] symbols);
 	public DownlinkStateData SendDownlinkRequest(DownlinkRequestData downlinkRequest, DownlinkSpecificationsData downlinkSpecificationsData);

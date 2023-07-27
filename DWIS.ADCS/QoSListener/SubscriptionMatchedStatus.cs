@@ -1,4 +1,4 @@
-﻿namespace DWIS.ADCS.IQoSListener;
+﻿namespace DWIS.ADCS;
 
 public class SubscriptionMatchedStatus
 {

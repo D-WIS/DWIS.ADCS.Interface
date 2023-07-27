@@ -1,3 +1,3 @@
-﻿namespace DWIS.ADCS.IQoSListener;
+﻿namespace DWIS.ADCS;
 
 public interface IListener { };
