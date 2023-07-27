@@ -30,6 +30,8 @@ public record Measure<T, TUnit> where TUnit : IUnit, new()
 		if (toEu.BaseType != fromEu.BaseType)
 			throw new($"can not convert {toEu} to {fromEu}");
 
+		if(fromEu == toEu) return value;
+
 		var toAttr = toEu.GetCustomAttribute<UnitAttribute>()!;
 		var fromAttr = fromEu.GetCustomAttribute<UnitAttribute>()!;
 
