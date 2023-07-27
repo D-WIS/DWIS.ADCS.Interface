@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace DWIS.ADCS.EngineeringUnits;
 
-public record Measure<T, TUnit> where TUnit : IUnit, new()
+public record Measure<T, TUnit> : IMeasure<T,TUnit> where TUnit : IUnit, new()
 {
 	public T Value { get; set; }
 
