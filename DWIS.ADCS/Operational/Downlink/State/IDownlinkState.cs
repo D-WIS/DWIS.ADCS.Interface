@@ -4,5 +4,5 @@ public interface IDownlinkState
 {
 	public DownlinkStateData CurrentDownlinkStateData { get; }
 
-	public QoSListener Listener { get; set; }
+	public IQoSListener Listener { get; set; }
 }

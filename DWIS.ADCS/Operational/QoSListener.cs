@@ -25,10 +25,10 @@ public class SubscriptionMatchedStatus
 	/// parameter list TBD
 };
 
-public interface Listener { };
+public interface IListener { };
 
 // Quality of Service callbacks for data
-public interface QoSListener : Listener
+public interface IQoSListener : IListener
 {
 	// Notification that connectivity has been dropped.
 	void LivelinessLost( LivelinessLostStatus status);  
