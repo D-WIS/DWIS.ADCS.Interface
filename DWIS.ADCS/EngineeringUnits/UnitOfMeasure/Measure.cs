@@ -3,29 +3,30 @@ using System.Reflection;
 
 namespace DWIS.ADCS.EngineeringUnits;
 
-public record Measure<T, U> where U : IUnit, new()
+public record Measure<T, TUnit> where TUnit : IUnit, new()
 {
 	public T Value { get; set; }
 
-	public void SetValue<Uv>(T value) where Uv : IUnit, new()
+	public void SetValue<TValueUnit>(T value) where TValueUnit : IUnit, new()
 	{
-		Value = ConvertUnit<Uv, U>(value);
+		Value = ConvertUnit<TValueUnit, TUnit>(value);
 	}
 
-	public Measure<T, Ut> ToUnit<Ut>() where Ut : IUnit, new()
+	public Measure<T, TNewUnit> ToUnit<TNewUnit>() where TNewUnit : IUnit, new()
 	{
-		return new Measure<T, Ut>
+		return new Measure<T, TNewUnit>
 		{
-			Value = ConvertUnit<U, Ut>(Value)
+			Value = ConvertUnit<TUnit, TNewUnit>(Value)
 		};
 
 	}
-	private static T ConvertUnit<Uf, Ut>(T value) where Ut : IUnit, new() where Uf : IUnit, new()
+
+	private static T ConvertUnit<TUnitFrom, TUnitTo>(T value) where TUnitTo : IUnit, new() where TUnitFrom : IUnit, new()
 	{
 		// rely on runtime check.
 		// bad C#, why not provide more type constrain ways in type parameter
-		var fromEu = typeof(Uf);
-		var toEu = typeof(Ut);
+		var fromEu = typeof(TUnitFrom);
+		var toEu = typeof(TUnitTo);
 		if (toEu.BaseType != fromEu.BaseType)
 			throw new($"can not convert {toEu} to {fromEu}");
 

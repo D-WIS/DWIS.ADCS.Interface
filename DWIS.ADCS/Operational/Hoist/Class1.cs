@@ -3,15 +3,15 @@ using DWIS.Types;
 
 namespace DWIS.ADCS.Operational.Hoist;
 
-record struct HoistStateData(long State, Timestamp Timestamp)
+public record HoistStateData(/*replace the State to Status for now*/StatusType State, Timestamp Timestamp)
 {
-    Controllable<double, Length.meter> PositionTarget;
-    //Types<Length::meters>                              PositionActual;
-    //Limits<Length>                              PositionLimits;
-    //Types<Velocity::meters_per_second>                 VelocityTarget;
-    //Types<Velocity::meters_per_second>                 VelocityActual;
-    //Limits<Velocity>                            VelocityLimits;
-    //Limits<Velocity::meters_per_second_squared> AccelerationLimits;
+	public Controllable<double, Length.meter> PositionTarget;
+	public Controllable<double, Length.meter> PositionActual;
+	//public  Limits<Length>                              PositionLimits;
+	//public  Types<Velocity::meters_per_second>                 VelocityTarget;
+	//public  Types<Velocity::meters_per_second>                 VelocityActual;
+	//public  Limits<Velocity>                            VelocityLimits;
+	//public  Limits<Velocity::meters_per_second_squared> AccelerationLimits;
 }
 
 //interface HoistState
