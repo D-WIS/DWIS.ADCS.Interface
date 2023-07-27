@@ -1,17 +1,17 @@
 ﻿using DWIS.EngineeringUnits;
 using DWIS.Types;
 
-namespace DWIS.ADCS.Operational;
+namespace DWIS.ADCS.Operational.Hoist;
 
 record struct HoistStateData(long State, Timestamp Timestamp)
 {
-	Controllable<double,Length.meter>                              PositionTarget;
-	//Types<Length::meters>                              PositionActual;
-	//Limits<Length>                              PositionLimits;
-	//Types<Velocity::meters_per_second>                 VelocityTarget;
-	//Types<Velocity::meters_per_second>                 VelocityActual;
-	//Limits<Velocity>                            VelocityLimits;
-	//Limits<Velocity::meters_per_second_squared> AccelerationLimits;
+    Controllable<double, Length.meter> PositionTarget;
+    //Types<Length::meters>                              PositionActual;
+    //Limits<Length>                              PositionLimits;
+    //Types<Velocity::meters_per_second>                 VelocityTarget;
+    //Types<Velocity::meters_per_second>                 VelocityActual;
+    //Limits<Velocity>                            VelocityLimits;
+    //Limits<Velocity::meters_per_second_squared> AccelerationLimits;
 }
 
 //interface HoistState

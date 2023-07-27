@@ -1,5 +1,4 @@
-﻿
-namespace DWIS.ADCS.Operational.Downlink;
+﻿namespace DWIS.ADCS.Operational.Downlink;
 
 /// <summary>
 /// Type of Interface: Ephemeral
