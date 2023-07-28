@@ -12,7 +12,6 @@ interface IDownlinkRequest
 	public DownlinkSpecificationsData SpecificationsData { get; }
 
 	public IQoSListener Listener { get; set; }
-	// should we add this method?
-	public bool SetDownlinkSymbolTable(DownlinkSymbol[][] symbols);
+
 	public DownlinkStateData SendDownlinkRequest(DownlinkRequestData downlinkRequest, DownlinkSpecificationsData downlinkSpecificationsData);
 }

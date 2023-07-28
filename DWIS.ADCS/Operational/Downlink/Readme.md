@@ -28,3 +28,15 @@ Quesion:
     for different Types::DownlinkTypes: Flow:Types<EngineeringUnits::VolumetricFlow::cubic_meters_per_second> ;Rotation:Types<EngineeringUnits::AngularVelocity::radians_per_second> ;
 1. rename 'DownlinkSymbols' into 'DownlinkSymbol'?
 1. '   @optional DownlinkIndex[2]          downlinkIndex;   ', should the type be int? instead of DownlinkIndex[2], so that null stand or not used and omited (optional)
+1. add a facade type: 
+```
+interface IDownlinkFacade
+{
+	bool SetDownlinkSymbolTable(DownlinkSymbol[][] symbols);
+	// would there be several downlinks in parallel
+	IDownlinkState MonitorDownlinkState(uint id);
+	IDownlinkRequest StartDownlinkRequest();
+
+}
+
+```
