@@ -5,6 +5,14 @@ namespace DWIS.ADCS.EngineeringUnits;
 
 public record Measure<T, TUnit> : IMeasure<T,TUnit> where TUnit : IUnit, new()
 {
+	public Measure()
+	{
+		
+	}
+	public Measure(T value)
+	{
+		Value = value;
+	}
 	public T Value { get; set; }
 
 	public void SetValue<TValueUnit>(T value) where TValueUnit : IUnit, new()

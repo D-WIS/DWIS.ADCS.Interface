@@ -7,7 +7,7 @@ types in https://github.com/D-WIS/ADCSSoftwareInterface/blob/main/ADCSSoftwareIn
 Unit attribute applied on unit i.e.,
 ```
 // an abstract record Dimension: Length
-public abstract record Length : IEngineeringUnit
+public abstract record Length : IUnit
 {
 	// an unit derived from the Dimension: Length
 	// we chose the SI unit as the base of all the units in the Dimension
