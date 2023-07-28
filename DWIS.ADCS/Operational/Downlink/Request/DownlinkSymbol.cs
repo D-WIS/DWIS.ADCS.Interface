@@ -1,5 +1,4 @@
-﻿using DWIS.ADCS.EngineeringUnits;
-using DWIS.EngineeringUnits;
+﻿using DWIS.EngineeringUnits;
 
 namespace DWIS.ADCS.Operational.Downlink;
 

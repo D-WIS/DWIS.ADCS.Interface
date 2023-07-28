@@ -1,4 +1,3 @@
-using DWIS.ADCS.EngineeringUnits;
 using DWIS.EngineeringUnits;
 
 namespace DWIS.Types;

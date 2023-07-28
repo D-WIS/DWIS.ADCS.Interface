@@ -1,6 +1,4 @@
-﻿using DWIS.EngineeringUnits;
-
-namespace DWIS.ADCS.EngineeringUnits;
+﻿namespace DWIS.EngineeringUnits;
 
 public interface IMeasure<T, out TUnit> where TUnit : IUnit
 {

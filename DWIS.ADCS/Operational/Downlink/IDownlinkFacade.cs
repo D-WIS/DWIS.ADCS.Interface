@@ -1,6 +1,6 @@
 ﻿namespace DWIS.ADCS.Operational.Downlink;
 
-interface IDownlinkFacade
+public interface IDownlinkFacade
 {
 	bool SetDownlinkSymbolTable(DownlinkSymbol[][] symbols);
 	// would there be several downlinks in parallel

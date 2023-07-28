@@ -1,7 +1,6 @@
-﻿using DWIS.EngineeringUnits;
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace DWIS.ADCS.EngineeringUnits;
+namespace DWIS.EngineeringUnits;
 
 public record Measure<T, TUnit> : IMeasure<T,TUnit> where TUnit : IUnit, new()
 {

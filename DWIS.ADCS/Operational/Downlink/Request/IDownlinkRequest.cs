@@ -6,7 +6,7 @@
 /// Interface is used to request a downlink.
 /// It contains enough information so the ADCS can display the request to the Driller and usually to wait for his approval.
 /// </summary>
-interface IDownlinkRequest
+public interface IDownlinkRequest
 {
 	public DownlinkRequestData RequestData { get; }
 	public DownlinkSpecificationsData SpecificationsData { get; }
