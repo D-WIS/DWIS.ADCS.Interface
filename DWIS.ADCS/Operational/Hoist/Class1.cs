@@ -12,6 +12,10 @@ public record HoistStateData(/*replace the State to Status for now*/StatusType S
 	//public  Types<Velocity::meters_per_second>                 VelocityActual;
 	//public  Limits<Velocity>                            VelocityLimits;
 	//public  Limits<Velocity::meters_per_second_squared> AccelerationLimits;
+	//public HoistStateData()
+	//{
+	//	PositionTarget.SetTargetValue<Length.feet>(55);
+	//}
 }
 
 //interface HoistState

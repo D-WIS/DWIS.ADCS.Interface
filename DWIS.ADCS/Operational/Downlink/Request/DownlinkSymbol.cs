@@ -19,7 +19,6 @@ public class DownlinkSymbol
 	public IMeasure<float, IUnit> Amplitude { get; set; }
 }
 
-
 public class test
 {
 	public test()

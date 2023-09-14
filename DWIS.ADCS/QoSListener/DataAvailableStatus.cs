@@ -1,6 +1,7 @@
 ﻿namespace DWIS.ADCS;
 
-public class DataAvailableStatus
+public class DataAvailableStatus<T>
 {
 	/// parameter list TBD
+	T Data { get; set; }
 };

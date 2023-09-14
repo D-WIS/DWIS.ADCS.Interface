@@ -10,6 +10,7 @@ Quesion:
 1. issues in repo.
 1. the workflow from api calling sequence viewpoint
 1. is DownlinkStateData return value needed as the return value of SendDownlinkRequest function, since the state constantly updating sereral times via QoSListenser
+
 1. is Types::RequestStatus  needed in DownlinkRequestData, since we have Types::DownlinkStatus               downlinkStatus in state update, what's the purpose for it inrequest, should we add api to abort a pending request?
 1. what 'others, and none' means in Types::DownlinkTypes  
 1. for 'float                               durationSeconds;//Duration of the downlink', what about the symbols add together less than the time here?
@@ -25,9 +26,15 @@ Quesion:
             //string unit;
         }
     ```
-    for different Types::DownlinkTypes: Flow:Types<EngineeringUnits::VolumetricFlow::cubic_meters_per_second> ;Rotation:Types<EngineeringUnits::AngularVelocity::radians_per_second> ;
+    for different 
+    Types::DownlinkTypes: 
+
+    Flow:Types<EngineeringUnits::VolumetricFlow::cubic_meters_per_second> ;
+    Rotation:Types<EngineeringUnits::AngularVelocity::radians_per_second> ;
+
 1. rename 'DownlinkSymbols' into 'DownlinkSymbol'?
 1. '   @optional DownlinkIndex[2]          downlinkIndex;   ', should the type be int? instead of DownlinkIndex[2], so that null stand or not used and omited (optional)
+1. SetListener in DownlinkRequest needed£¿ replace with  QoSListener<DownlinkStateData> GetListener<DownlinkStateData>()?
 1. add a facade type: 
 ```
 interface IDownlinkFacade
@@ -40,3 +47,6 @@ interface IDownlinkFacade
 }
 
 ```
+1. State machine: 
+new => pending => granted => running => scheduled
+               => denied => 
