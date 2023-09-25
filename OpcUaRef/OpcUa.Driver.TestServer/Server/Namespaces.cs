@@ -1,4 +1,4 @@
-namespace Slb.OpcUa.Driver.TestServer;
+namespace OpcUa.Driver.TestServer;
 
 /// <summary>
 /// Defines constants for namespaces used by the servers.

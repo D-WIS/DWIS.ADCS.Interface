@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Slb.OpcUa.Driver.TestServer;
+using OpcUa.Driver.TestServer;
 
 var autoAccept = true;
 string password = null;
-var applicationName = "ConsoleReferenceServer";//"Slb.OpcUa.Driver.TestServer";
-var configSectionName = "Quickstarts.ReferenceServer";//"Slb.OpcUa.Driver.TestServer";// 
+var applicationName = "ConsoleReferenceServer";//"OpcUa.Driver.TestServer";
+var configSectionName = "Quickstarts.ReferenceServer";//"OpcUa.Driver.TestServer";// 
 var shadowConfig = false;
 var renewCertificate = false;
 var cttMode = false;

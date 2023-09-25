@@ -2,7 +2,7 @@
 using Opc.Ua;
 using Opc.Ua.Server;
 
-namespace Slb.OpcUa.Driver.TestServer;
+namespace OpcUa.Driver.TestServer;
 
 /// <summary>
 /// Implements the Quickstart Reference Server.

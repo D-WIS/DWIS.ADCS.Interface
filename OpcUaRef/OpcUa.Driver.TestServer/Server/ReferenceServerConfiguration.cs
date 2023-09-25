@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Slb.OpcUa.Driver.TestServer;
+namespace OpcUa.Driver.TestServer;
 /// <summary>
 /// Stores the configuration the data access node manager.
 /// </summary>

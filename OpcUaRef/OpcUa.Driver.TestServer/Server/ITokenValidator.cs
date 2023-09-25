@@ -1,6 +1,6 @@
 using Opc.Ua;
 
-namespace Slb.OpcUa.Driver.TestServer;
+namespace OpcUa.Driver.TestServer;
 
 public interface ITokenValidator
 {

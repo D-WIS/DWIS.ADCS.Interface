@@ -6,7 +6,7 @@ using Opc.Ua.Server;
 using Opc.Ua.Test;
 using Range = Opc.Ua.Range;
 
-namespace Slb.OpcUa.Driver.TestServer;
+namespace OpcUa.Driver.TestServer;
 /// <summary>
 /// A node manager for a server that exposes several variables.
 /// </summary>

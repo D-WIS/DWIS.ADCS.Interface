@@ -8,4 +8,6 @@ public partial interface IOpcUaClient
 	ISession Session { get; }
 
 	Task SubscribeAsync(IEnumerable<SubscriptionNode> nodes, int publishingInterval);
+	CancellationTokenSource ReadCyclic(IList<NodeId> nodes, int interval, Action<DataValueCollection> handler);
+
 }

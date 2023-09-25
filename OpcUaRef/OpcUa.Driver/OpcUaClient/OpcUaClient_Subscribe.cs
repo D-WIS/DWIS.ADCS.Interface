@@ -4,7 +4,7 @@ using Opc.Ua;
 
 namespace OpcUa.Driver;
 
-public partial class OpcUaClient
+public partial class OpcUaClient: IOpcUaClient
 {
 	/// <summary>
 	/// Subscribe to all variables in the list.

@@ -4,7 +4,7 @@ using Opc.Ua.Configuration;
 using Opc.Ua.Server;
 using System.Text;
 
-namespace Slb.OpcUa.Driver.TestServer;
+namespace OpcUa.Driver.TestServer;
 /// <summary>
 /// The error code why the application exit.
 /// </summary>

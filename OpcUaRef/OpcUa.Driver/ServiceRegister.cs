@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Slb.Planck.Modbus.Logic;
+namespace Planck.Modbus.Logic;
 
 public static class ServiceRegister
 {
