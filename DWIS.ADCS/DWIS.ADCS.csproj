@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="OpcUaRef\OpcUa.Driver\OpcUa.Driver.csproj" />
+    <ProjectReference Include="..\OpcUaRef\OpcUa.Driver\OpcUa.Driver.csproj" />
   </ItemGroup>
 
 </Project>

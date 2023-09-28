@@ -9,5 +9,5 @@ public interface IDownlinkState
 {
 	public DownlinkStateData CurrentDownlinkStateData { get; }
 
-	public IQoSListener Listener { get; set; }
+	public IQoSListener<DownlinkStateData> Listener { get; set; }
 }
