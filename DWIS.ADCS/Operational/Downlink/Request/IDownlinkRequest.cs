@@ -14,4 +14,6 @@ public interface IDownlinkRequest
 	public IQoSListener<DownlinkStateData> Listener { get; set; }
 
 	public DownlinkStateData SendDownlinkRequest(DownlinkRequestData downlinkRequest, DownlinkSpecificationsData downlinkSpecificationsData);
+	public DownlinkStateData Abort(uint requestedDownlinkID);
+	public DownlinkStateData Complete(uint requestedDownlinkID);
 }

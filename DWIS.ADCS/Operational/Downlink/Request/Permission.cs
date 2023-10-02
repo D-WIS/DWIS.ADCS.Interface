@@ -1,6 +1,6 @@
 ﻿namespace DWIS.ADCS.Operational.Downlink;
 
-public enum Permission
+public enum Permission : UInt16
 {
-    Granted, Pending, Denied, Invalid
+	Granted, Pending, Denied, Invalid
 }

@@ -18,11 +18,25 @@ internal class ExampleApp
 
 	public async Task Run()
 	{
-		ReadNodes();
-		WriteNodes();
+		//ReadNodes();
+		//WriteNodes();
 		await SubscribeAsync();
 		//CyclicRead();
-		Browse();
+		//Browse();
+		await Task.Run(async () =>
+		{
+			while (true)
+			{
+				var keyinfo = Console.ReadKey();
+
+				if (keyinfo.Key == ConsoleKey.S)
+				{
+					CallRequestDownlink();
+				}
+
+				await Task.Delay(500);
+			}
+		});
 	}
 
 	public void CyclicRead()
@@ -187,9 +201,9 @@ internal class ExampleApp
 	{
 		var nodes = new List<SubscriptionNode>()
 		{
-			new( "ns=2;s=Scalar_Simulation_Int32",  OnMonitoredItemNotification, "Int32 Variable"),
-			new( "ns=2;s=Scalar_Simulation_Float", OnMonitoredItemNotification, "Float Variable"),
-			new( "ns=2;s=Scalar_Simulation_String", OnMonitoredItemNotification, "String Variable"),
+			//new( "ns=2;s=Scalar_Simulation_Int32",  OnMonitoredItemNotification, "Int32 Variable"),
+			//new( "ns=2;s=Scalar_Simulation_Float", OnMonitoredItemNotification, "Float Variable"),
+			new( "ns=2;s=Permission", OnMonitoredItemNotification, "Permission"),
 		};
 
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
@@ -267,6 +281,40 @@ internal class ExampleApp
 		}
 	}
 
+	private MonitoredItemNotification notification;
+	public void CallRequestDownlink()
+	{
+		if (!_client.Session.Connected)
+		{
+			_logger.LogInformation("Session not connected!");
+			return;
+		}
+
+		try
+		{
+			if (notification == null) return;
+			// Parent node
+			var objectId = new NodeId("ns=2;s=DownlinkRequest");
+			// Method node
+			var methodId = new NodeId("ns=2;s=SendDownlinkRequest");
+			var f = new float[] { (float)2, (float)3.0 };
+			var inputArguments = new object[] { (UInt16)4, Convert.ToUInt16(notification.Value.Value), (float)13, (float)23, (float)33,f, (UInt16)3 };
+
+			_logger.LogInformation("Calling SendDownlinkRequest for node {0} ...", methodId);
+			var outputArguments = _client.Session.Call(objectId, methodId, inputArguments);
+
+			_logger.LogInformation("Method call returned {0} output argument(s):", outputArguments.Count);
+			foreach (var outputArgument in outputArguments)
+			{
+				_logger.LogInformation("     OutputValue = {0}", outputArgument.ToString());
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.LogInformation("Method call error: {0}", ex.Message);
+		}
+	}
+
 	/// <summary>
 	/// Handle DataChange notifications from Server
 	/// </summary>
@@ -275,7 +323,7 @@ internal class ExampleApp
 		try
 		{
 			// Log MonitoredItem Notification event
-			var notification = e.NotificationValue as MonitoredItemNotification;
+			 notification = e.NotificationValue as MonitoredItemNotification;
 			_logger.LogInformation("Notification: {0} \"{1}\" and Value = {2}.",
 				notification!.Message.SequenceNumber, monitoredItem.ResolvedNodeId, notification.Value);
 		}

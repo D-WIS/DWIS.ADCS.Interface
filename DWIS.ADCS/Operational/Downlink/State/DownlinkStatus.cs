@@ -1,6 +1,6 @@
 ﻿namespace DWIS.ADCS.Operational.Downlink;
 
-public enum DownlinkStatus
+public enum DownlinkStatus : UInt16
 {
-    Scheduled, Running, Paused, Stopped, Completed, Aborted
+	Scheduled, Running, Paused, Stopped, Completed, Aborted
 }
