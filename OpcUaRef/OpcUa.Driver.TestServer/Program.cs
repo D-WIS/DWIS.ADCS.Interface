@@ -21,6 +21,7 @@ await run();
 await host.RunAsync();
 async Task run()
 {
+	AnsiConsole.MarkupLine("[underline red]DWIS ADCS Interface[/]!");
 	var output = Console.Out;
 	try
 	{

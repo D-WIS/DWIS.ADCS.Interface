@@ -1,5 +1,4 @@
 using Opc.Ua;
-using static Opc.Ua.TypeInfo;
 
 namespace OpcUa.Driver.TestServer;
 
@@ -163,6 +162,23 @@ public partial class ReferenceNodeManager
 
 			//var downlinkObj = CreateObject(root, n, n);
 			outputArguments[4] = 1;
+
+			Task.Run(async () =>
+			{
+				var permission = AnsiConsole.Prompt(
+					new SelectionPrompt<string>()
+						.Title("Received downloading request, [green]your choice[/]?")
+						.PageSize(10)
+						.MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
+				.AddChoices(new[] {
+							"Granted", "Pending", "Denied", "Invalid",
+						})); 
+				//await Task.Delay(500);
+				// Echo the fruit back to the terminal
+				AnsiConsole.WriteLine($"Driller's answer: {permission}!");
+
+				
+			});
 			return ServiceResult.Good;
 		}
 		catch
