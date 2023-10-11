@@ -2,5 +2,5 @@
 
 public enum Permission : UInt16
 {
-	Granted, Pending, Denied, Invalid
+	Unset, Granted, Pending, Denied, Invalid
 }

@@ -119,12 +119,11 @@ public partial class OpcUaClient: IOpcUaClient
 	{
 		try
 		{
-			_logger.LogInformation("Keep Alive  : Id={0} PublishTime={1} SequenceNumber={2}.",
-				subscription.Id, notification.PublishTime, notification.SequenceNumber);
+			//_logger.LogInformation("Keep Alive  : Id={0} PublishTime={1} SequenceNumber={2}.",subscription.Id, notification.PublishTime, notification.SequenceNumber);
 		}
 		catch (Exception ex)
 		{
-			_logger.LogInformation("FastKeepAliveNotification error: {0}", ex.Message);
+			_logger.LogError("FastKeepAliveNotification error: {0}", ex.Message);
 		}
 	}
 

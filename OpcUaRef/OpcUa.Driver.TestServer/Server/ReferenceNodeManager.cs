@@ -2081,7 +2081,7 @@ public partial class ReferenceNodeManager : CustomNodeManager2
 
 			// reset random generator and generate boundary values
 			ResetRandomGenerator(100, 1);
-			m_simulationTimer = new Timer(DoSimulation, null, 1000, 1000);
+			m_simulationTimer = new System.Threading.Timer(DoSimulation, null, 1000, 1000);
 		}
 	}
 
@@ -3426,7 +3426,7 @@ public partial class ReferenceNodeManager : CustomNodeManager2
 	private ReferenceServerConfiguration m_configuration;
 	private RandomSource m_randomSource;
 	private DataGenerator m_generator;
-	private Timer m_simulationTimer;
+	private System.Threading.Timer m_simulationTimer;
 	private UInt16 m_simulationInterval = 1000;
 	private bool m_simulationEnabled = true;
 	private List<BaseDataVariableState> m_dynamicNodes;
