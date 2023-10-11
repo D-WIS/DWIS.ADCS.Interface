@@ -9,11 +9,10 @@
 public interface IDownlinkRequest
 {
 	public DownlinkRequestData RequestData { get; }
-	public DownlinkSpecificationsData SpecificationsData { get; }
 
 	public IQoSListener<DownlinkStateData> Listener { get; set; }
 
-	public DownlinkStateData SendDownlinkRequest(DownlinkRequestData downlinkRequest, DownlinkSpecificationsData downlinkSpecificationsData);
+	public DownlinkStateData SendDownlinkRequest(DownlinkRequestData downlinkRequest);
 	public DownlinkStateData Abort(uint requestedDownlinkID);
 	public DownlinkStateData Complete(uint requestedDownlinkID);
 }

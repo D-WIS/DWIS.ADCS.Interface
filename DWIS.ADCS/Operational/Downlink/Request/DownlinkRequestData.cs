@@ -12,6 +12,7 @@ public class DownlinkRequestData
 	// Optional, Requested start depth of downlink from receipt of message. omitted or “0” indicates immediately.
 	public float DelayDepth;
 	// Index of desired downlink from a 2 dimensional Symbol_Table shared in advance, i.e., shared via a file in USB disk.
+	// -1, if this we do not use this way
 	public UInt16 DownlinkIndex;
 	// Requested symbols
 	public DownlinkSymbol[] DownlinkSymbolsArray;
