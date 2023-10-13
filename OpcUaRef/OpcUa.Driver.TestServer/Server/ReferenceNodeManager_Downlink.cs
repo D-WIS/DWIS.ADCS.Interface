@@ -122,23 +122,29 @@ public partial class ReferenceNodeManager
 
 	private System.Threading.Timer timer;
 	private BaseDataVariableState permission;
-	private BaseDataVariableState RequestedDownlinkId;
+	private BaseDataVariableState requestedDownlinkId;
+	private BaseDataVariableState downlinkStatus;
+
+	private BaseDataVariableState percentComplete;
+	private BaseDataVariableState durationRemainingSeconds;
+
 
 	private void DownlinkStateDate()
 	{
 		// DownlinkStateData
 		var downlinkStateDateObj = CreateObject(root, "DownlinkStateData", "DownlinkStateData");
-		RequestedDownlinkId = CreateVariable(downlinkStateDateObj, "RequestedDownlinkId", "RequestedDownlinkId", BuiltInType.UInt32,
+		requestedDownlinkId = CreateVariable(downlinkStateDateObj, "RequestedDownlinkId", "RequestedDownlinkId", BuiltInType.UInt32,
 			ValueRanks.Scalar);
 		permission = CreateVariable(downlinkStateDateObj, "Permission", "Permission", BuiltInType.UInt16,
 			ValueRanks.Scalar);
 		permission.Value = Permission.Unset;
 		permission.Timestamp = DateTime.UtcNow;
-		CreateVariable(downlinkStateDateObj, "DownlinkStatus", "DownlinkStatus", BuiltInType.UInt16,
+
+		downlinkStatus = CreateVariable(downlinkStateDateObj, "DownlinkStatus", "DownlinkStatus", BuiltInType.UInt16,
 			ValueRanks.Scalar);
-		CreateVariable(downlinkStateDateObj, "PercentComplete", "PercentComplete", BuiltInType.Float,
+		percentComplete = CreateVariable(downlinkStateDateObj, "PercentComplete", "PercentComplete", BuiltInType.Float,
 			ValueRanks.Scalar);
-		CreateVariable(downlinkStateDateObj, "DurationRemainingSeconds", "DurationRemainingSeconds", BuiltInType.Float,
+		durationRemainingSeconds = CreateVariable(downlinkStateDateObj, "DurationRemainingSeconds", "DurationRemainingSeconds", BuiltInType.Float,
 			ValueRanks.Scalar);
 	}
 
@@ -160,7 +166,7 @@ public partial class ReferenceNodeManager
 			UInt16 op2 = (UInt16)inputArguments[1];
 			var v = (UInt32)(op1 * op2);
 			outputArguments[0] = v;
-			RequestedDownlinkId.Value = v;
+			requestedDownlinkId.Value = v;
 
 
 			// set output parameter
@@ -170,7 +176,7 @@ public partial class ReferenceNodeManager
 			outputArguments[4] = 1;
 
 
-			var data = new DownlinkRequestData()
+			var requestData = new DownlinkRequestData()
 			{
 				Method = (Method)inputArguments[0],
 				Type = (DownlinkTypes)inputArguments[1],
@@ -194,7 +200,7 @@ public partial class ReferenceNodeManager
 					sym.Add((symbol));
 				}
 
-				data.DownlinkSymbolsArray = sym.ToArray();
+				requestData.DownlinkSymbolsArray = sym.ToArray();
 			}
 
 			var serializerOptions = new JsonSerializerOptions
@@ -203,7 +209,7 @@ public partial class ReferenceNodeManager
 				Converters = { new JsonStringEnumConverter() }
 			};
 
-			var json = JsonSerializer.Serialize(data, serializerOptions);
+			var json = JsonSerializer.Serialize(requestData, serializerOptions);
 			//Task.Run(async () =>
 			//{
 
@@ -241,35 +247,140 @@ public partial class ReferenceNodeManager
 			AnsiConsole.WriteLine($"Driller's answer: {per}!");
 			if (per == "Granted")
 			{
-				permission.Value = Permission.Granted;
-				permission.Timestamp = DateTime.UtcNow;
+
+				//	AnsiConsole.Status()
+				//		.Spinner(Spinner.Known.Bounce)
+				//		.AutoRefresh(true)
+				//		.SpinnerStyle(Style.Parse("green bold"))
+				//		.Start("Downlink Started...", ctx =>
+				//		{
+				//			// Simulate some work
+				//			AnsiConsole.MarkupLine("Doing some work...");
+				//			Thread.Sleep(1000);
+
+				//			// Update the status and spinner
+				//			ctx.Status("Thinking some more");
+				//			ctx.Spinner(Spinner.Known.Star);
+				//			ctx.SpinnerStyle(Style.Parse("green"));
+
+				//			// Simulate some work
+				//			AnsiConsole.MarkupLine("Doing some more work...");
+				//			Thread.Sleep(5000);
+				//			permission.Value = Permission.Unset;
+				//			permission.Timestamp = DateTime.UtcNow;
+				//			permission.ClearChangeMasks(SystemContext, false);
+				//		});
+				//}
+				Task.Run(
+					() => AnsiConsole.Progress()
+						.Columns(new ProgressColumn[]
+						{
+							new TaskDescriptionColumn(), // Task description
+							new ProgressBarColumn(), // Progress bar
+							new PercentageColumn(), // Percentage
+							new RemainingTimeColumn(), // Remaining time
+							new SpinnerColumn(), // Spinner
+						})
+						//.AutoClear(true)
+						.HideCompleted(true)
+						.StartAsync(async ctx =>
+						{
+							permission.Value = Permission.Granted;
+							//permission.Timestamp = DateTime.UtcNow;
+							permission.ClearChangeMasks(SystemContext, false);
+
+							downlinkStatus.Value = DownlinkStatus.Scheduled;
+							downlinkStatus.ClearChangeMasks(SystemContext, false);
+
+							// Define tasks
+							var task1 = ctx.AddTask("[green]The Downlink Progress[/]");
+							var task2 = ctx.AddTask("second");
+							var task3 = ctx.AddTask("third");
+							task3.Value = 100;
+							task3.IsIndeterminate = true;
+							while (!ctx.IsFinished)
+							{
+								// delay
+								var delay = requestData.DelaySeconds * 1000;
+								var symbolsSeconds =
+									requestData.DownlinkSymbolsArray.Sum(s => s.HoldTimeMs + s.RampTimeMs) / 1000;
+								var totalSeconds = requestData.DelaySeconds + symbolsSeconds;
+								task2.Description = $"[green]Delay {requestData.DelaySeconds}s[/]";
+								task2.Value = 0;
+								int delayed = 0;
+								while (delayed < requestData.DelaySeconds)
+								{
+									await Task.Delay(1000);
+									delayed++;
+									task2.Increment(1 / requestData.DelaySeconds * 100);
+									task1.Value(delayed / totalSeconds * 100);
+									percentComplete.Value = (delayed / totalSeconds) * 100;
+									percentComplete.ClearChangeMasks(SystemContext, false);
+									durationRemainingSeconds.Value = totalSeconds - delayed;
+									durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+
+								}
+								downlinkStatus.Value = DownlinkStatus.Running;
+								downlinkStatus.ClearChangeMasks(SystemContext, false);
+								// downlink
+								double symTimes = 0;
+								task3.Value = 0;
+								for (int j = 0; j < requestData.DownlinkSymbolsArray.Length; j++)
+								{
+									task2.Value = 0;
+									var sym = requestData.DownlinkSymbolsArray[j];
+									task2.Description = $"[blue]Symb:{j};Ampl: {sym.Amplitude.Value}[/]";
+									task3.Description = $"[yellow]Ramp: {sym.RampTimeMs}[/]";
+									await Task.Delay(Convert.ToInt32(sym.RampTimeMs));
+
+									symTimes += (sym.RampTimeMs) / 1000;
+									percentComplete.Value = ((delayed + symTimes) / totalSeconds) * 100;
+									percentComplete.ClearChangeMasks(SystemContext, false);
+
+									durationRemainingSeconds.Value = totalSeconds - delayed - symTimes;
+									durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+
+									task1.Value((delayed + symTimes) / totalSeconds * 100);
+
+									task2.Value = sym.RampTimeMs / (sym.RampTimeMs + sym.HoldTimeMs) * 100;
+									task3.Description =
+										$"[yellow]Hold: {sym.HoldTimeMs}ms[/]";
+									await Task.Delay(Convert.ToInt32(sym.HoldTimeMs));
+
+									symTimes += (sym.HoldTimeMs) / 1000;
+									percentComplete.Value = ((delayed + symTimes) / totalSeconds) * 100;
+									percentComplete.ClearChangeMasks(SystemContext, false);
+
+									durationRemainingSeconds.Value = totalSeconds - delayed - symTimes;
+									durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+
+									task1.Value((delayed + symTimes) / totalSeconds * 100);
+									task2.Value = 100;
+								}
+
+								task3.Value = 100;
+								percentComplete.Value = 100;
+								percentComplete.ClearChangeMasks(SystemContext, false);
+
+								durationRemainingSeconds.Value = 0;
+								durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+
+								downlinkStatus.Value = DownlinkStatus.Completed;
+								downlinkStatus.ClearChangeMasks(SystemContext, false);
+							}
+						}));
+
+				//}
+			}
+			else
+			{
+				permission.Value = Permission.Denied;
 				permission.ClearChangeMasks(SystemContext, false);
 
-				AnsiConsole.Status()
-					.Spinner(Spinner.Known.Bounce)
-					.SpinnerStyle(Style.Parse("green bold"))
-					.Start("Donlink Started...", ctx =>
-					{
-						// Simulate some work
-						AnsiConsole.MarkupLine("Doing some work...");
-						Thread.Sleep(1000);
-
-						// Update the status and spinner
-						ctx.Status("Thinking some more");
-						ctx.Spinner(Spinner.Known.Star);
-						ctx.SpinnerStyle(Style.Parse("green"));
-
-						// Simulate some work
-						AnsiConsole.MarkupLine("Doing some more work...");
-						Thread.Sleep(2000);
-					});
 			}
 
 
-		//}
-
-
-		//});
+			//});
 			return ServiceResult.Good;
 		}
 		catch

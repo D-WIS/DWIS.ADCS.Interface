@@ -3,6 +3,7 @@ using Opc.Ua.Client;
 using Opc.Ua;
 using OpcUa.Driver;
 using DWIS.ADCS.Operational.Downlink;
+using Spectre.Console;
 
 namespace OpcUa.Driver.ClientExample;
 
@@ -19,6 +20,7 @@ internal class DownlinkRequest
 
 	public async Task Run()
 	{
+		DownlinkStatusMonitor();
 		await SubscribeAsync();
 
 		await Task.Run(async () =>
@@ -49,7 +51,6 @@ internal class DownlinkRequest
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
 	}
 
-	private MonitoredItemNotification notification;
 	public void CallRequestDownlink()
 	{
 		if (!_client.Session.Connected)
@@ -60,13 +61,14 @@ internal class DownlinkRequest
 
 		try
 		{
-			if (notification == null) return;
+			if (_notification == null) return;
+
 			// Parent node
 			var objectId = new NodeId("ns=2;s=DownlinkRequest");
 			// Method node
 			var methodId = new NodeId("ns=2;s=SendDownlinkRequest");
-			var f = new float[] { (float)2, (float)3.0, (float)2, (float)3.0, (float)2, (float)3.0, (float)3.0, (float)2, (float)3.0, };
-			var inputArguments = new object[] { (UInt16)0, Convert.ToUInt16(notification.Value.Value), (float)13, (float)23, (float)33, (Int16)(-1), f };
+			var f = new float[] { (float)2000, (float)3000, (float)2000, (float)3000, (float)2000, (float)2000, (float)3000, (float)2000, (float)3300, };
+			var inputArguments = new object[] { (UInt16)0, Convert.ToUInt16(_notification.Value.Value), (float)8, (float)6, (float)5, (Int16)(-1), f };
 
 			_logger.LogInformation("Calling SendDownlinkRequest for node {0} ...", methodId);
 			var outputArguments = _client.Session.Call(objectId, methodId, inputArguments);
@@ -83,6 +85,58 @@ internal class DownlinkRequest
 		}
 	}
 
+	private Permission _permition;
+	private AutoResetEvent? _DonwlinkStatusUpdated = new(false);
+	private void DownlinkStatusMonitor()
+	{
+
+		//Task.Run(() => AnsiConsole.Status()
+		//	.SpinnerStyle(Color.Green)
+		//	.StartAsync("Downlink Status...", ctx =>
+		//	{
+		//		while (true)
+		//		{
+		//			_DonwlinkStatusUpdated.WaitOne(2000);
+		//			AnsiConsole.MarkupLine("");
+		//			ctx.Status($"[[Permission: {_permition}        ]]");
+		//			ctx.Spinner = ctx.Spinner == Spinner.Known.Default ? Spinner.Known.Balloon : Spinner.Known.Default;
+		//			ctx.SpinnerStyle = new Style(ctx.SpinnerStyle.Foreground == Color.Green ? Color.Yellow : Color.Green);
+		//			//ctx.Refresh();
+		//		}
+		//	}));
+		Task.Run(() => AnsiConsole.Progress()
+			.Columns(new ProgressColumn[]
+			{
+				new TaskDescriptionColumn(),    // Task description
+				new ProgressBarColumn(),        // Progress bar
+				new PercentageColumn(),         // Percentage
+				new RemainingTimeColumn(),      // Remaining time
+				new SpinnerColumn(),            // Spinner
+			})
+			.StartAsync(async ctx =>
+			{
+				// Define tasks
+				var task1 = ctx.AddTask("[green]Reticulating splines[/]");
+				var task2 = ctx.AddTask("[green]Folding space[/]");
+
+				while (!ctx.IsFinished)
+				{
+					_DonwlinkStatusUpdated.WaitOne(2000);
+
+					// Simulate some work
+					//await Task.Delay(250);
+
+					task1.Description = $"[green][[Permission: {_permition}        ]][/]";
+					// Increment
+					task1.Increment(1.5);
+					task2.Increment(4.5);
+					//task1.RemainingTime
+				}
+			}));
+	}
+
+	private MonitoredItemNotification? _notification;
+
 	/// <summary>
 	/// Handle DataChange notifications from Server
 	/// </summary>
@@ -91,15 +145,15 @@ internal class DownlinkRequest
 		try
 		{
 			// Log MonitoredItem Notification event
-			notification = e.NotificationValue as MonitoredItemNotification;
-			object value = notification.Value;
+			_notification = e.NotificationValue as MonitoredItemNotification;
 			if ((string)monitoredItem.ResolvedNodeId.Identifier == "Permission")
 			{
-				value = Enum.Parse<Permission>(notification!.Value!.Value.ToString());
-
+				var value = (Permission)Enum.Parse<Permission>(_notification!.Value!.Value.ToString());
+				_permition = value;
+				_DonwlinkStatusUpdated.Set();
 			}
 			//_logger.LogInformation("Notification: {0} \"{1}\" and Value = {2}.",
-			//notification!.Message.SequenceNumber, monitoredItem.ResolvedNodeId, value);
+			//_notification!.Message.SequenceNumber, monitoredItem.ResolvedNodeId, value);
 
 		}
 		catch (Exception ex)
