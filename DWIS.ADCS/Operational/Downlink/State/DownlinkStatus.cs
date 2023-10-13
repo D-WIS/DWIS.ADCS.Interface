@@ -2,5 +2,5 @@
 
 public enum DownlinkStatus : UInt16
 {
-	Scheduled, Running, Paused, Stopped, Completed, Aborted
+	Unset,Scheduled, Running, Paused, Stopped, Completed, Aborted
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using ADCS.Interface.Share;
+using Microsoft.Extensions.Logging;
 using Opc.Ua.Client;
 using Opc.Ua;
 using OpcUa.Driver;
@@ -46,6 +47,12 @@ internal class DownlinkRequest
 			//new( "ns=2;s=Scalar_Simulation_Int32",  OnMonitoredItemNotification, "Int32 Variable"),
 			//new( "ns=2;s=Scalar_Simulation_Float", OnMonitoredItemNotification, "Float Variable"),
 			new( "ns=2;s=Permission", OnMonitoredItemNotification, "Permission"),
+
+			new( "ns=2;s=RequestedDownlinkId", OnMonitoredItemNotification, "RequestedDownlinkId"),
+			new( "ns=2;s=DownlinkStatus", OnMonitoredItemNotification, "DownlinkStatus"),
+			new( "ns=2;s=PercentComplete", OnMonitoredItemNotification, "PercentComplete"),
+			new( "ns=2;s=DurationRemainingSeconds", OnMonitoredItemNotification, "DurationRemainingSeconds"),
+
 		};
 
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
@@ -71,13 +78,28 @@ internal class DownlinkRequest
 			var inputArguments = new object[] { (UInt16)0, Convert.ToUInt16(_notification.Value.Value), (float)8, (float)6, (float)5, (Int16)(-1), f };
 
 			_logger.LogInformation("Calling SendDownlinkRequest for node {0} ...", methodId);
-			var outputArguments = _client.Session.Call(objectId, methodId, inputArguments);
+			var o = _client.Session.Call(objectId, methodId, inputArguments);
 
-			_logger.LogInformation("Method call returned {0} output argument(s):", outputArguments.Count);
-			foreach (var outputArgument in outputArguments)
-			{
-				_logger.LogInformation("     OutputValue = {0}", outputArgument.ToString());
-			}
+			//_logger.LogInformation("Method call returned {0} output argument(s):", outputArguments.Count);
+			//foreach (var outputArgument in outputArguments)
+			//{
+			//	//_logger.LogInformation("     OutputValue = {0}", outputArgument.ToString());
+
+			//}
+			var status = new DownlinkStateData();
+			status.RequestedDownlinkId = uint.Parse(o[0].ToString());
+			status.Permission = (Permission)Enum.Parse<Permission>(o[1].ToString());
+			status.DownlinkStatus = (DownlinkStatus)Enum.Parse<DownlinkStatus>(o[2].ToString());
+			status.PercentComplete = float.Parse(o[3].ToString());
+			status.DurationRemainingSeconds = float.Parse(o[4].ToString());
+
+			var json = ConsoleExt.GetJsonText(status);
+			AnsiConsole.Write(
+				new Panel(json)
+					.Header("Received Downlink Request")
+					.Collapse()
+					.RoundedBorder()
+					.BorderColor(Color.Yellow));
 		}
 		catch (Exception ex)
 		{
@@ -85,7 +107,7 @@ internal class DownlinkRequest
 		}
 	}
 
-	private Permission _permition;
+	private DownlinkStateData _downlinkStateData = new DownlinkStateData();
 	private AutoResetEvent? _DonwlinkStatusUpdated = new(false);
 	private void DownlinkStatusMonitor()
 	{
@@ -110,14 +132,14 @@ internal class DownlinkRequest
 				new TaskDescriptionColumn(),    // Task description
 				new ProgressBarColumn(),        // Progress bar
 				new PercentageColumn(),         // Percentage
-				new RemainingTimeColumn(),      // Remaining time
+				//new RemainingTimeColumn(),      // Remaining time
 				new SpinnerColumn(),            // Spinner
 			})
 			.StartAsync(async ctx =>
 			{
 				// Define tasks
 				var task1 = ctx.AddTask("[green]Reticulating splines[/]");
-				var task2 = ctx.AddTask("[green]Folding space[/]");
+				//var task2 = ctx.AddTask("[green]Folding space[/]");
 
 				while (!ctx.IsFinished)
 				{
@@ -125,11 +147,12 @@ internal class DownlinkRequest
 
 					// Simulate some work
 					//await Task.Delay(250);
-
-					task1.Description = $"[green][[Permission: {_permition}        ]][/]";
+					var time = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
+					task1.Description = $"[green][[Permission: {_downlinkStateData.Permission}; DownlinkStatus: {_downlinkStateData.DownlinkStatus}]][/] [blue]{time}[/]";
 					// Increment
-					task1.Increment(1.5);
-					task2.Increment(4.5);
+					task1.Value = _downlinkStateData.PercentComplete;
+					//task1.RemainingTime = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
+					//task2.Increment(4.5);
 					//task1.RemainingTime
 				}
 			}));
@@ -146,12 +169,25 @@ internal class DownlinkRequest
 		{
 			// Log MonitoredItem Notification event
 			_notification = e.NotificationValue as MonitoredItemNotification;
-			if ((string)monitoredItem.ResolvedNodeId.Identifier == "Permission")
+			var id = (string)monitoredItem.ResolvedNodeId.Identifier;
+			var value = _notification!.Value!.Value.ToString();
+			if ( id == nameof(_downlinkStateData.Permission))
 			{
-				var value = (Permission)Enum.Parse<Permission>(_notification!.Value!.Value.ToString());
-				_permition = value;
-				_DonwlinkStatusUpdated.Set();
+				_downlinkStateData.Permission= Enum.Parse<Permission>(value);
+			} else if (id == nameof(_downlinkStateData.DownlinkStatus))
+			{
+				_downlinkStateData.DownlinkStatus= Enum.Parse<DownlinkStatus>(value);
+			} else if (id == nameof(_downlinkStateData.PercentComplete))
+			{
+				_downlinkStateData.PercentComplete = float.Parse(value);
 			}
+			else if (id == nameof(_downlinkStateData.DurationRemainingSeconds))
+			{
+				_downlinkStateData.DurationRemainingSeconds = float.Parse(value);
+			}
+
+			_DonwlinkStatusUpdated.Set();
+
 			//_logger.LogInformation("Notification: {0} \"{1}\" and Value = {2}.",
 			//_notification!.Message.SequenceNumber, monitoredItem.ResolvedNodeId, value);
 

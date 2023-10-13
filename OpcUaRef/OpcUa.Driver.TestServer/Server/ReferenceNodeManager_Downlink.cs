@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ADCS.Interface.Share;
 using Opc.Ua;
 using Spectre.Console.Json;
 using DWIS.ADCS.Operational.Downlink;
@@ -142,12 +143,16 @@ public partial class ReferenceNodeManager
 
 		downlinkStatus = CreateVariable(downlinkStateDateObj, "DownlinkStatus", "DownlinkStatus", BuiltInType.UInt16,
 			ValueRanks.Scalar);
+		downlinkStatus.Value = DownlinkStatus.Unset;
 		percentComplete = CreateVariable(downlinkStateDateObj, "PercentComplete", "PercentComplete", BuiltInType.Float,
 			ValueRanks.Scalar);
+		percentComplete.Value = 0;
 		durationRemainingSeconds = CreateVariable(downlinkStateDateObj, "DurationRemainingSeconds", "DurationRemainingSeconds", BuiltInType.Float,
 			ValueRanks.Scalar);
+		durationRemainingSeconds.Value = 0;
 	}
 
+	private int _downlinkId = 0;
 	private ServiceResult OnRequestDownlinkCall(
 		ISystemContext context,
 		MethodState method,
@@ -162,18 +167,16 @@ public partial class ReferenceNodeManager
 
 		try
 		{
-			UInt16 op1 = (UInt16)inputArguments[0];
-			UInt16 op2 = (UInt16)inputArguments[1];
-			var v = (UInt32)(op1 * op2);
-			outputArguments[0] = v;
-			requestedDownlinkId.Value = v;
+			_downlinkId++;
+			outputArguments[0] = _downlinkId;
+			requestedDownlinkId.Value = _downlinkId;
 
 
 			// set output parameter
 			//var n = $"DownlinkRequest{op1 * op2}";
 
 			//var downlinkObj = CreateObject(root, n, n);
-			outputArguments[4] = 1;
+			outputArguments[4] = 0;
 
 
 			var requestData = new DownlinkRequestData()
@@ -203,25 +206,10 @@ public partial class ReferenceNodeManager
 				requestData.DownlinkSymbolsArray = sym.ToArray();
 			}
 
-			var serializerOptions = new JsonSerializerOptions
-			{
-				PropertyNameCaseInsensitive = true,
-				Converters = { new JsonStringEnumConverter() }
-			};
-
-			var json = JsonSerializer.Serialize(requestData, serializerOptions);
 			//Task.Run(async () =>
 			//{
 
-			var downlink = new JsonText(json)
-				.BracesColor(Color.Red)
-				.BracketColor(Color.Green)
-				.ColonColor(Color.Blue)
-				.CommaColor(Color.Red)
-				.StringColor(Color.Green)
-				.NumberColor(Color.Blue)
-				.BooleanColor(Color.Red)
-				.NullColor(Color.Green);
+			var downlink = ConsoleExt.GetJsonText(requestData);
 
 			permission.Value = Permission.Pending;
 			permission.Timestamp = DateTime.UtcNow;
@@ -242,12 +230,15 @@ public partial class ReferenceNodeManager
 					{
 						"Granted", "Denied",
 					}));
+
 			//await Task.Delay(500);
 			// Echo the fruit back to the terminal
 			AnsiConsole.WriteLine($"Driller's answer: {per}!");
+			outputArguments[1] = Permission.Denied;
+
 			if (per == "Granted")
 			{
-
+				outputArguments[1] = Permission.Granted;
 				//	AnsiConsole.Status()
 				//		.Spinner(Spinner.Known.Bounce)
 				//		.AutoRefresh(true)
@@ -366,7 +357,11 @@ public partial class ReferenceNodeManager
 								durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
 
 								downlinkStatus.Value = DownlinkStatus.Completed;
-								downlinkStatus.ClearChangeMasks(SystemContext, false);
+								downlinkStatus.ClearChangeMasks(SystemContext, false);								percentComplete.Value = 100;
+								percentComplete.ClearChangeMasks(SystemContext, false);
+
+								percentComplete.Value = 0;
+								percentComplete.ClearChangeMasks(SystemContext, false);
 							}
 						}));
 

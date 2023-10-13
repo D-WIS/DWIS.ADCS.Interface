@@ -237,7 +237,7 @@ public class UAServer<T> where T : StandardServer, new()
 				for (var ii = 0; ii < sessions.Count; ii++)
 				{
 					var session = sessions[ii];
-					PrintSessionStatus(session, "-Status-", true);
+					//PrintSessionStatus(session, "-Status-", true);
 				}
 				_lastEventTime = DateTime.UtcNow;
 			}

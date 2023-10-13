@@ -22,6 +22,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\DWIS.ADCS\DWIS.ADCS.csproj" />
+	  <ProjectReference Include="..\ADCS.Interface.Share\ADCS.Interface.Share.csproj" />
 	  <ProjectReference Include="..\OpcUa.Driver\OpcUa.Driver.csproj" />
 	</ItemGroup>
 	<ItemGroup>
