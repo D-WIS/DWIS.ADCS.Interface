@@ -23,7 +23,6 @@ internal class DownlinkRequest
 	{
 		DownlinkStatusMonitor();
 		await SubscribeAsync();
-
 		await Task.Run(async () =>
 		{
 			while (true)
@@ -138,19 +137,22 @@ internal class DownlinkRequest
 			.StartAsync(async ctx =>
 			{
 				// Define tasks
-				var task1 = ctx.AddTask("[green]Reticulating splines[/]");
+				var task1 = ctx.AddTask("[green]S:send[/]");
 				//var task2 = ctx.AddTask("[green]Folding space[/]");
 
 				while (!ctx.IsFinished)
 				{
+
 					_DonwlinkStatusUpdated.WaitOne(2000);
 
 					// Simulate some work
 					//await Task.Delay(250);
 					var time = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
-					task1.Description = $"[green][[Permission: {_downlinkStateData.Permission}; DownlinkStatus: {_downlinkStateData.DownlinkStatus}]][/] [blue]{time}[/]";
+					task1.Description = $"[gray]S:send[/] [green][[Permission: {_downlinkStateData.Permission}; DownlinkStatus: {_downlinkStateData.DownlinkStatus}]][/] [blue]{time}[/]";
 					// Increment
-					task1.Value = _downlinkStateData.PercentComplete;
+						var v =_downlinkStateData.PercentComplete;
+						task1.Value = v;
+
 					//task1.RemainingTime = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
 					//task2.Increment(4.5);
 					//task1.RemainingTime
@@ -179,7 +181,10 @@ internal class DownlinkRequest
 				_downlinkStateData.DownlinkStatus= Enum.Parse<DownlinkStatus>(value);
 			} else if (id == nameof(_downlinkStateData.PercentComplete))
 			{
-				_downlinkStateData.PercentComplete = float.Parse(value);
+					var v= float.Parse(value);
+					_downlinkStateData.PercentComplete = v;
+
+
 			}
 			else if (id == nameof(_downlinkStateData.DurationRemainingSeconds))
 			{

@@ -21,7 +21,19 @@ async Task run()
 	await opcUaDriver.Init("OpcUa.Client");
 
 	var serverUrl = "opc.tcp://localhost:62541/Quickstarts/ReferenceServer";
-	client = await opcUaDriver.Connect(serverUrl).ConfigureAwait(false);
+	do
+	{
+		try
+		{
+			client = await opcUaDriver.Connect(serverUrl).ConfigureAwait(false);
+			break;
+		}
+		catch (Exception ex)
+		{
+			await Task.Delay(500);
+			logger.LogError(ex.Message);
+		}
+	} while (true);
 
 	var app = new DownlinkRequest(logger, client);
 	app.Run();
