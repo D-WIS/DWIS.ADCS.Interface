@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpcUa.Driver;
 using OpcUa.Driver;
+using OpcUa.Driver.Client;
 using OpcUa.Driver.ClientExample;
 
 using var host = Host.CreateDefaultBuilder(args).Build();
@@ -25,7 +26,7 @@ async Task run()
 	{
 		try
 		{
-			client = await opcUaDriver.Connect(serverUrl).ConfigureAwait(false);
+			client = await opcUaDriver.Connect(serverUrl,true,false).ConfigureAwait(false);
 			break;
 		}
 		catch (Exception ex)
@@ -35,6 +36,8 @@ async Task run()
 		}
 	} while (true);
 
-	var app = new DownlinkRequest(logger, client);
+	//var app = new DownlinkRequest(logger, client);
+	var app = new ExampleApp(logger, client);
+
 	app.Run();
 }

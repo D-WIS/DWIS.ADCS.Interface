@@ -169,9 +169,9 @@
 		<MaxQueryContinuationPoints>10</MaxQueryContinuationPoints>
 		<MaxHistoryContinuationPoints>100</MaxHistoryContinuationPoints>
 		<MaxRequestAge>600000</MaxRequestAge>
-		<MinPublishingInterval>50</MinPublishingInterval>
+		<MinPublishingInterval>10</MinPublishingInterval>
 		<MaxPublishingInterval>3600000</MaxPublishingInterval>
-		<PublishingResolution>50</PublishingResolution>
+		<PublishingResolution>10</PublishingResolution>
 		<MaxSubscriptionLifetime>3600000</MaxSubscriptionLifetime>
 		<MaxMessageQueueSize>100</MaxMessageQueueSize>
 		<MaxNotificationQueueSize>100</MaxNotificationQueueSize>

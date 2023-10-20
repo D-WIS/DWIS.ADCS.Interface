@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Opc.Ua.Client;
 
-namespace OpcUa.Driver;
+namespace OpcUa.Driver.Client;
 
 public interface IT : ISession
 {

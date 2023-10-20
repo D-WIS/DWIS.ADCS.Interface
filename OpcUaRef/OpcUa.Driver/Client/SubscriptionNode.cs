@@ -1,7 +1,7 @@
 ﻿using Opc.Ua;
 using Opc.Ua.Client;
 
-namespace OpcUa.Driver;
+namespace OpcUa.Driver.Client;
 
 public record SubscriptionNode(NodeId NodeId, MonitoredItemNotificationEventHandler ValueChangeHandler, string? DisplayName = null) { }
 

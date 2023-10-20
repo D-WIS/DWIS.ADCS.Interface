@@ -4,6 +4,7 @@ using Opc.Ua.Client;
 using Opc.Ua;
 using OpcUa.Driver;
 using DWIS.ADCS.Operational.Downlink;
+using OpcUa.Driver.Client;
 using Spectre.Console;
 
 namespace OpcUa.Driver.ClientExample;

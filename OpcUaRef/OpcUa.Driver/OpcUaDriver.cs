@@ -2,6 +2,7 @@
 using Opc.Ua;
 using Opc.Ua.Client;
 using Opc.Ua.Configuration;
+using OpcUa.Driver.Client;
 
 namespace OpcUa.Driver;
 

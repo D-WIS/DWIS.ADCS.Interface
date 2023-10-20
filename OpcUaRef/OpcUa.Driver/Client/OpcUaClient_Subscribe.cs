@@ -2,7 +2,7 @@
 using Opc.Ua.Client;
 using Opc.Ua;
 
-namespace OpcUa.Driver;
+namespace OpcUa.Driver.Client;
 
 public partial class OpcUaClient: IOpcUaClient
 {
@@ -15,7 +15,8 @@ public partial class OpcUaClient: IOpcUaClient
 	/// <returns></returns>
 	public async Task SubscribeAsync(
 		IEnumerable<SubscriptionNode> nodes,
-		int publishingInterval
+		int publishingInterval,
+		CancellationToken token = default
 	)
 	{
 		if (!Session.Connected)
@@ -61,7 +62,7 @@ public partial class OpcUaClient: IOpcUaClient
 			Session.AddSubscription(subscription);
 
 			// Create the subscription on Server side
-			await subscription.CreateAsync().ConfigureAwait(false);
+			await subscription.CreateAsync(token).ConfigureAwait(false);
 			_logger.LogInformation("New Subscription created with SubscriptionId = {0}.", subscription.Id);
 
 			// Create MonitoredItems for data changes
@@ -84,8 +85,16 @@ public partial class OpcUaClient: IOpcUaClient
 			}
 
 			// Create the monitored items on Server side
-			await subscription.ApplyChangesAsync();
+			await subscription.ApplyChangesAsync(token);
 			_logger.LogInformation("MonitoredItems {0} created for SubscriptionId = {1}.", subscription.MonitoredItemCount, subscription.Id);
+
+			token.Register(async () =>
+			{
+				await subscription.DeleteAsync(true).ConfigureAwait(false);
+				subscription?.Dispose();
+				subscription = null;
+				_logger.LogInformation("Subscription is deleted.");
+			});
 		}
 		catch (Exception ex)
 		{

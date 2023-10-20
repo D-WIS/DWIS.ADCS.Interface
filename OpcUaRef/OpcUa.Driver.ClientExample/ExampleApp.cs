@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Opc.Ua.Client;
 using Opc.Ua;
+using OpcUa.Driver.Client;
 
 namespace OpcUa.Driver.ClientExample;
 
@@ -17,17 +18,17 @@ internal class ExampleApp
 
 	public async Task Run()
 	{
-		ReadNodes();
-		WriteNodes();
+		//ReadNodes();
+		//WriteNodes();
 		await SubscribeAsync();
 		//CyclicRead();
-		Browse();
+		//Browse();
 	}
 
 	public void CyclicRead()
 	{
 		var nodes = new List<NodeId>() { Variables.Server_ServerStatus, Variables.Server_ServerStatus_StartTime };
-		_client.ReadCyclic(
+		_client.ReadCyclicAsync(
 			nodes, 1000, t =>
 			{
 				_logger.LogInformation("cyclic reading:");
@@ -190,7 +191,7 @@ internal class ExampleApp
 			new( "ns=2;s=Scalar_Simulation_Float", OnMonitoredItemNotification, "Float Variable"),
 		};
 
-		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
+		await _client.SubscribeAsync(nodes, 10).ConfigureAwait(false);
 	}
 
 	/// <summary>
