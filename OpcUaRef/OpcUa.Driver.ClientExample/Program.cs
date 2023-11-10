@@ -36,8 +36,8 @@ async Task run()
 		}
 	} while (true);
 
-	//var app = new DownlinkRequest(logger, client);
-	var app = new ExampleApp(logger, client);
+	var app = new DownlinkRequest(logger, client);
+	//var app = new ExampleApp(logger, client);
 
 	app.Run();
 }
