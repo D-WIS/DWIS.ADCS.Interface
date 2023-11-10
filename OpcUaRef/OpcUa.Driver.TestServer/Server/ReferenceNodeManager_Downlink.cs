@@ -17,6 +17,19 @@ public partial class ReferenceNodeManager
 	{
 		var downlinkObj = CreateObject(root, "DownlinkRequest", "DownlinkRequest");
 
+		ConfigSendDownlinkRequestMethod(downlinkObj);
+		ConfigCancelDownlinkRequestMethod(downlinkObj);
+		DownlinkStateDate();
+		//timer = new System.Threading.Timer(o =>
+		//{
+		//	var a = Convert.ToInt32(permission.Value) + 1;
+		//	permission.Value = (UInt16)(a % 5);
+		//	permission.Timestamp = DateTime.UtcNow;
+		//	permission.ClearChangeMasks(SystemContext, false);
+		//}, null, 1000, 1000);
+	}
+	private void ConfigSendDownlinkRequestMethod(BaseObjectState downlinkObj)
+	{
 		var sendDownlinkRequest = CreateMethod(downlinkObj, "SendDownlinkRequest", "SendDownlinkRequest");
 		// set input arguments
 		sendDownlinkRequest.InputArguments = new PropertyState<Argument[]>(sendDownlinkRequest);
@@ -31,38 +44,51 @@ public partial class ReferenceNodeManager
 
 		sendDownlinkRequest.InputArguments.Value = new Argument[]
 		{
-			new Argument()
+			new()
 			{
-				Name = "Method", Description = "uint16, {¡°Symbol_Script¡± | Symbol_Table¡± | ¡°Surface_Equipment¡±}", DataType = DataTypeIds.UInt16,
+				Name = "Method", Description = "uint16, {¡°Symbol_Script¡± | Symbol_Table¡± | ¡°Surface_Equipment¡±}",
+				DataType = DataTypeIds.UInt16,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
-				Name = "DownlinkTypes", Description = "uint16, {¡°OnBottomFlow¡± | ¡°OnBottomRotation¡± | ¡°OffBottomFlow¡± | ¡°OffBottomRotation¡± | \"Other\" | \"None\"}. \"Other\" is used for extensibility of custom implementations", DataType = DataTypeIds.UInt16,
+				Name = "DownlinkTypes",
+				Description =
+					"uint16, {¡°OnBottomFlow¡± | ¡°OnBottomRotation¡± | ¡°OffBottomFlow¡± | ¡°OffBottomRotation¡± | \"Other\" | \"None\"}. \"Other\" is used for extensibility of custom implementations",
+				DataType = DataTypeIds.UInt16,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
 				Name = "DurationSeconds", Description = "Float valueDuration of the downlink", DataType = DataTypeIds.Float,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
-				Name = "DelaySeconds", Description = " Optional, Requested start time of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.", DataType = DataTypeIds.Float,
+				Name = "DelaySeconds",
+				Description =
+					" Optional, Requested start time of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.",
+				DataType = DataTypeIds.Float,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
-				Name = "DelayDepth", Description = "Optional, Requested start depth of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.", DataType = DataTypeIds.Float,
+				Name = "DelayDepth",
+				Description =
+					"Optional, Requested start depth of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.",
+				DataType = DataTypeIds.Float,
 				ValueRank = ValueRanks.Scalar
 			},
 
-			new Argument()
+			new()
 			{
-				Name = "DownlinkIndex", Description = "Index of desired downlink from a 2 dimensional Symbol_Table shared in advance, i.e., shared via a file in USB disk.", DataType = DataTypeIds.Int16,
+				Name = "DownlinkIndex",
+				Description =
+					"Index of desired downlink from a 2 dimensional Symbol_Table shared in advance, i.e., shared via a file in USB disk.",
+				DataType = DataTypeIds.Int16,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
 				Name = "DownlinkSymbolsArray", Description = "20: Requested symbols", DataType = DataTypeIds.Float,
 				ValueRank = ValueRanks.OneDimension, ArrayDimensions = new UInt32Collection(new List<uint> { 0 })
@@ -82,27 +108,27 @@ public partial class ReferenceNodeManager
 
 		sendDownlinkRequest.OutputArguments.Value = new Argument[]
 		{
-			new Argument()
+			new()
 			{
 				Name = "RequestedDownlinkId", Description = "RequestedDownlinkId", DataType = DataTypeIds.UInt32,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
 				Name = "Permission", Description = "Permission", DataType = DataTypeIds.UInt16,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
 				Name = "DownlinkStatus", Description = "DownlinkStatus", DataType = DataTypeIds.UInt16,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
 				Name = "PercentComplete", Description = "PercentComplete", DataType = DataTypeIds.Float,
 				ValueRank = ValueRanks.Scalar
 			},
-			new Argument()
+			new()
 			{
 				Name = "DurationRemainingSeconds", Description = "DurationRemainingSeconds", DataType = DataTypeIds.Float,
 				ValueRank = ValueRanks.Scalar
@@ -110,15 +136,115 @@ public partial class ReferenceNodeManager
 		};
 
 		sendDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
+	}
+	private void ConfigCancelDownlinkRequestMethod(BaseObjectState downlinkObj)
+	{
+		var cancelDownlinkRequest = CreateMethod(downlinkObj, "CancelDownlinkRequest", "CancelDownlinkRequest");
+		// set input arguments
+		cancelDownlinkRequest.InputArguments = new PropertyState<Argument[]>(cancelDownlinkRequest);
+		cancelDownlinkRequest.InputArguments.NodeId =
+			new NodeId(cancelDownlinkRequest.BrowseName.Name + "InArgs", NamespaceIndex);
+		cancelDownlinkRequest.InputArguments.BrowseName = BrowseNames.InputArguments;
+		cancelDownlinkRequest.InputArguments.DisplayName = cancelDownlinkRequest.InputArguments.BrowseName.Name;
+		cancelDownlinkRequest.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
+		cancelDownlinkRequest.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+		cancelDownlinkRequest.InputArguments.DataType = DataTypeIds.Argument;
+		cancelDownlinkRequest.InputArguments.ValueRank = ValueRanks.OneDimension;
 
-		DownlinkStateDate();
-		//timer = new System.Threading.Timer(o =>
-		//{
-		//	var a = Convert.ToInt32(permission.Value) + 1;
-		//	permission.Value = (UInt16)(a % 5);
-		//	permission.Timestamp = DateTime.UtcNow;
-		//	permission.ClearChangeMasks(SystemContext, false);
-		//}, null, 1000, 1000);
+		cancelDownlinkRequest.InputArguments.Value = new Argument[]
+		{
+			new()
+			{
+				Name = "Method", Description = "uint16, {¡°Symbol_Script¡± | Symbol_Table¡± | ¡°Surface_Equipment¡±}",
+				DataType = DataTypeIds.UInt16,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DownlinkTypes",
+				Description =
+					"uint16, {¡°OnBottomFlow¡± | ¡°OnBottomRotation¡± | ¡°OffBottomFlow¡± | ¡°OffBottomRotation¡± | \"Other\" | \"None\"}. \"Other\" is used for extensibility of custom implementations",
+				DataType = DataTypeIds.UInt16,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DurationSeconds", Description = "Float valueDuration of the downlink", DataType = DataTypeIds.Float,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DelaySeconds",
+				Description =
+					" Optional, Requested start time of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.",
+				DataType = DataTypeIds.Float,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DelayDepth",
+				Description =
+					"Optional, Requested start depth of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.",
+				DataType = DataTypeIds.Float,
+				ValueRank = ValueRanks.Scalar
+			},
+
+			new()
+			{
+				Name = "DownlinkIndex",
+				Description =
+					"Index of desired downlink from a 2 dimensional Symbol_Table shared in advance, i.e., shared via a file in USB disk.",
+				DataType = DataTypeIds.Int16,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DownlinkSymbolsArray", Description = "20: Requested symbols", DataType = DataTypeIds.Float,
+				ValueRank = ValueRanks.OneDimension, ArrayDimensions = new UInt32Collection(new List<uint> { 0 })
+			},
+		};
+
+		// set output arguments
+		cancelDownlinkRequest.OutputArguments = new PropertyState<Argument[]>(cancelDownlinkRequest);
+		cancelDownlinkRequest.OutputArguments.NodeId =
+			new NodeId(cancelDownlinkRequest.BrowseName.Name + "OutArgs", NamespaceIndex);
+		cancelDownlinkRequest.OutputArguments.BrowseName = BrowseNames.OutputArguments;
+		cancelDownlinkRequest.OutputArguments.DisplayName = cancelDownlinkRequest.OutputArguments.BrowseName.Name;
+		cancelDownlinkRequest.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
+		cancelDownlinkRequest.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+		cancelDownlinkRequest.OutputArguments.DataType = DataTypeIds.Argument;
+		cancelDownlinkRequest.OutputArguments.ValueRank = ValueRanks.OneDimension;
+
+		cancelDownlinkRequest.OutputArguments.Value = new Argument[]
+		{
+			new()
+			{
+				Name = "RequestedDownlinkId", Description = "RequestedDownlinkId", DataType = DataTypeIds.UInt32,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "Permission", Description = "Permission", DataType = DataTypeIds.UInt16,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DownlinkStatus", Description = "DownlinkStatus", DataType = DataTypeIds.UInt16,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "PercentComplete", Description = "PercentComplete", DataType = DataTypeIds.Float,
+				ValueRank = ValueRanks.Scalar
+			},
+			new()
+			{
+				Name = "DurationRemainingSeconds", Description = "DurationRemainingSeconds", DataType = DataTypeIds.Float,
+				ValueRank = ValueRanks.Scalar
+			}
+		};
+
+		cancelDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
 	}
 
 	private System.Threading.Timer timer;
@@ -153,6 +279,7 @@ public partial class ReferenceNodeManager
 	}
 
 	private int _downlinkId = 0;
+	private CancellationTokenSource _downlinkCancellationTokenSource = new ();	
 	private ServiceResult OnRequestDownlinkCall(
 		ISystemContext context,
 		MethodState method,

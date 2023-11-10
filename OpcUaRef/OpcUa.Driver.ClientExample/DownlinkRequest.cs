@@ -33,6 +33,9 @@ internal class DownlinkRequest
 				if (keyinfo.Key == ConsoleKey.S)
 				{
 					CallRequestDownlink();
+				} else if (keyinfo.Key == ConsoleKey.C)
+				{
+					//CancelRequest();
 				}
 
 				await Task.Delay(500);
@@ -58,6 +61,10 @@ internal class DownlinkRequest
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
 	}
 
+	public void CancelRequest(int requestId)
+	{
+
+	}
 	public void CallRequestDownlink()
 	{
 		if (!_client.Session.Connected)
