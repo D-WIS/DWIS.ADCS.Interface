@@ -60,7 +60,7 @@ internal class DownlinkRequest
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
 	}
 
-	public void AbortRequest(int requestId)
+	public void AbortRequest(int requestedDownlinkId)
 	{
 
 	}
@@ -113,7 +113,7 @@ internal class DownlinkRequest
 		}
 	}
 
-	private DownlinkStateData _downlinkStateData = new DownlinkStateData();
+	private DownlinkStateData _downlinkStateData = new();
 	private AutoResetEvent? _DonwlinkStatusUpdated = new(false);
 	private void DownlinkStatusMonitor()
 	{

@@ -1,8 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using ADCS.Interface.Share;
 using Opc.Ua;
-using Spectre.Console.Json;
 using DWIS.ADCS.Operational.Downlink;
 using DWIS.EngineeringUnits;
 
@@ -96,21 +93,30 @@ public partial class ReferenceNodeManager
 		};
 
 		// set output arguments
-		sendDownlinkRequest.OutputArguments = new PropertyState<Argument[]>(sendDownlinkRequest);
-		sendDownlinkRequest.OutputArguments.NodeId =
-			new NodeId(sendDownlinkRequest.BrowseName.Name + "OutArgs", NamespaceIndex);
-		sendDownlinkRequest.OutputArguments.BrowseName = BrowseNames.OutputArguments;
-		sendDownlinkRequest.OutputArguments.DisplayName = sendDownlinkRequest.OutputArguments.BrowseName.Name;
-		sendDownlinkRequest.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
-		sendDownlinkRequest.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
-		sendDownlinkRequest.OutputArguments.DataType = DataTypeIds.Argument;
-		sendDownlinkRequest.OutputArguments.ValueRank = ValueRanks.OneDimension;
+		ConfigDownlinkOutputWithStateData(sendDownlinkRequest);
 
-		sendDownlinkRequest.OutputArguments.Value = new Argument[]
+		sendDownlinkRequest.OnCallMethod = OnRequestDownlinkCall;
+	}
+
+	private void ConfigDownlinkOutputWithStateData(MethodState methodState)
+	{
+		methodState.OutputArguments = new PropertyState<Argument[]>(methodState);
+		methodState.OutputArguments.NodeId =
+			new NodeId(methodState.BrowseName.Name + "OutArgs", NamespaceIndex);
+		methodState.OutputArguments.BrowseName = BrowseNames.OutputArguments;
+		methodState.OutputArguments.DisplayName = methodState.OutputArguments.BrowseName.Name;
+		methodState.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
+		methodState.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+		methodState.OutputArguments.DataType = DataTypeIds.Argument;
+		methodState.OutputArguments.ValueRank = ValueRanks.OneDimension;
+
+		methodState.OutputArguments.Value = new Argument[]
 		{
 			new()
 			{
-				Name = "RequestedDownlinkId", Description = "RequestedDownlinkId", DataType = DataTypeIds.UInt32,
+				Name = "RequestedDownlinkId",
+				Description = "RequestedDownlinkId",
+				DataType = DataTypeIds.UInt32,
 				ValueRank = ValueRanks.Scalar
 			},
 			new()
@@ -134,117 +140,37 @@ public partial class ReferenceNodeManager
 				ValueRank = ValueRanks.Scalar
 			}
 		};
-
-		sendDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
 	}
+
 	private void ConfigAbortDownlinkRequestMethod(BaseObjectState downlinkObj)
 	{
-		var AbortDownlinkRequest = CreateMethod(downlinkObj, "AbortDownlinkRequest", "AbortDownlinkRequest");
+		var abortDownlinkRequest = CreateMethod(downlinkObj, "AbortDownlinkRequest", "AbortDownlinkRequest");
 		// set input arguments
-		AbortDownlinkRequest.InputArguments = new PropertyState<Argument[]>(AbortDownlinkRequest);
-		AbortDownlinkRequest.InputArguments.NodeId =
-			new NodeId(AbortDownlinkRequest.BrowseName.Name + "InArgs", NamespaceIndex);
-		AbortDownlinkRequest.InputArguments.BrowseName = BrowseNames.InputArguments;
-		AbortDownlinkRequest.InputArguments.DisplayName = AbortDownlinkRequest.InputArguments.BrowseName.Name;
-		AbortDownlinkRequest.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
-		AbortDownlinkRequest.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
-		AbortDownlinkRequest.InputArguments.DataType = DataTypeIds.Argument;
-		AbortDownlinkRequest.InputArguments.ValueRank = ValueRanks.OneDimension;
+		abortDownlinkRequest.InputArguments = new PropertyState<Argument[]>(abortDownlinkRequest);
+		abortDownlinkRequest.InputArguments.NodeId =
+			new NodeId(abortDownlinkRequest.BrowseName.Name + "InArgs", NamespaceIndex);
+		abortDownlinkRequest.InputArguments.BrowseName = BrowseNames.InputArguments;
+		abortDownlinkRequest.InputArguments.DisplayName = abortDownlinkRequest.InputArguments.BrowseName.Name;
+		abortDownlinkRequest.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
+		abortDownlinkRequest.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+		abortDownlinkRequest.InputArguments.DataType = DataTypeIds.Argument;
+		abortDownlinkRequest.InputArguments.ValueRank = ValueRanks.OneDimension;
 
-		AbortDownlinkRequest.InputArguments.Value = new Argument[]
+		abortDownlinkRequest.InputArguments.Value = new Argument[]
 		{
 			new()
 			{
-				Name = "Method", Description = "uint16, {¡°Symbol_Script¡± | Symbol_Table¡± | ¡°Surface_Equipment¡±}",
-				DataType = DataTypeIds.UInt16,
+				Name = "RequestedDownlinkId",
+				Description = "RequestedDownlinkId",
+				DataType = DataTypeIds.UInt32,
 				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DownlinkTypes",
-				Description =
-					"uint16, {¡°OnBottomFlow¡± | ¡°OnBottomRotation¡± | ¡°OffBottomFlow¡± | ¡°OffBottomRotation¡± | \"Other\" | \"None\"}. \"Other\" is used for extensibility of custom implementations",
-				DataType = DataTypeIds.UInt16,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DurationSeconds", Description = "Float valueDuration of the downlink", DataType = DataTypeIds.Float,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DelaySeconds",
-				Description =
-					" Optional, Requested start time of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.",
-				DataType = DataTypeIds.Float,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DelayDepth",
-				Description =
-					"Optional, Requested start depth of downlink from receipt of message. omitted or ¡°0¡± indicates immediately.",
-				DataType = DataTypeIds.Float,
-				ValueRank = ValueRanks.Scalar
-			},
-
-			new()
-			{
-				Name = "DownlinkIndex",
-				Description =
-					"Index of desired downlink from a 2 dimensional Symbol_Table shared in advance, i.e., shared via a file in USB disk.",
-				DataType = DataTypeIds.Int16,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DownlinkSymbolsArray", Description = "20: Requested symbols", DataType = DataTypeIds.Float,
-				ValueRank = ValueRanks.OneDimension, ArrayDimensions = new UInt32Collection(new List<uint> { 0 })
-			},
+			}
 		};
 
 		// set output arguments
-		AbortDownlinkRequest.OutputArguments = new PropertyState<Argument[]>(AbortDownlinkRequest);
-		AbortDownlinkRequest.OutputArguments.NodeId =
-			new NodeId(AbortDownlinkRequest.BrowseName.Name + "OutArgs", NamespaceIndex);
-		AbortDownlinkRequest.OutputArguments.BrowseName = BrowseNames.OutputArguments;
-		AbortDownlinkRequest.OutputArguments.DisplayName = AbortDownlinkRequest.OutputArguments.BrowseName.Name;
-		AbortDownlinkRequest.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
-		AbortDownlinkRequest.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
-		AbortDownlinkRequest.OutputArguments.DataType = DataTypeIds.Argument;
-		AbortDownlinkRequest.OutputArguments.ValueRank = ValueRanks.OneDimension;
+		ConfigDownlinkOutputWithStateData(abortDownlinkRequest);
 
-		AbortDownlinkRequest.OutputArguments.Value = new Argument[]
-		{
-			new()
-			{
-				Name = "RequestedDownlinkId", Description = "RequestedDownlinkId", DataType = DataTypeIds.UInt32,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "Permission", Description = "Permission", DataType = DataTypeIds.UInt16,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DownlinkStatus", Description = "DownlinkStatus", DataType = DataTypeIds.UInt16,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "PercentComplete", Description = "PercentComplete", DataType = DataTypeIds.Float,
-				ValueRank = ValueRanks.Scalar
-			},
-			new()
-			{
-				Name = "DurationRemainingSeconds", Description = "DurationRemainingSeconds", DataType = DataTypeIds.Float,
-				ValueRank = ValueRanks.Scalar
-			}
-		};
-
-		AbortDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
+		abortDownlinkRequest.OnCallMethod = OnAbortDownlinkCall;
 	}
 
 	private System.Threading.Timer timer;
@@ -511,5 +437,14 @@ public partial class ReferenceNodeManager
 		}
 	}
 
+	private ServiceResult OnAbortDownlinkCall(
+		ISystemContext context,
+		MethodState method,
+		IList<object> inputArguments,
+		IList<object> outputArguments)
+	{
+		// todo
+		return ServiceResult.Good;
+	}
 	#endregion
 }
