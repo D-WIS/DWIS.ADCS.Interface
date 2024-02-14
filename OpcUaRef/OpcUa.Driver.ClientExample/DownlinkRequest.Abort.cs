@@ -10,7 +10,7 @@ internal partial class DownlinkRequest
 	public void CallAbortDownlinkRequest()
 	{
 		var requestedDownlinkId = _DownlinkStateData.RequestedDownlinkId;
-		if (requestedDownlinkId == UInt32.MinValue)
+		if (requestedDownlinkId == 0) // valid value starts from 1
 		{
 			_logger.LogError("No Active Downlink to Abort!");
 			return;

@@ -204,8 +204,8 @@ public partial class ReferenceNodeManager
 		durationRemainingSeconds.Value = 0;
 	}
 
-	private int _downlinkId = 0;
-	private CancellationTokenSource _downlinkCancellationTokenSource = new ();	
+	private int _requestedDownlinkId = 0;
+	private CancellationTokenSource _downlinkCancellationTokenSource = new();
 	private ServiceResult OnRequestDownlinkCall(
 		ISystemContext context,
 		MethodState method,
@@ -220,20 +220,17 @@ public partial class ReferenceNodeManager
 
 		try
 		{
-			Interlocked.Increment(ref _downlinkId);
-			outputArguments[0] = _downlinkId; // requestedDownlinkID
-			requestedDownlinkId.Value = _downlinkId;
-
+			Interlocked.Increment(ref _requestedDownlinkId);
+			outputArguments[0] = _requestedDownlinkId; 
+			requestedDownlinkId.Value = _requestedDownlinkId;
 
 			// set output parameter
 			outputArguments[4] = 0; // percentComplete
-
 
 			var requestData = ParseDownlinkRequestData(inputArguments);
 			//Task.Run(async () =>
 			//{
 			UpdatePermission(Permission.Pending);
-
 			ShowReceivedDownlinkRequest(requestData);
 
 			var per = AnsiConsole.Prompt(
@@ -279,29 +276,30 @@ public partial class ReferenceNodeManager
 				//}
 				Task.Run(
 					() => AnsiConsole.Progress()
-						.Columns(new ProgressColumn[]
-						{
+						.Columns(
 							new TaskDescriptionColumn(), // Task description
 							new ProgressBarColumn(), // Progress bar
 							new PercentageColumn(), // Percentage
 							new RemainingTimeColumn(), // Remaining time
-							new SpinnerColumn(), // Spinner
-						})
+							new SpinnerColumn() // Spinner
+						)
 						//.AutoClear(true)
 						.HideCompleted(true)
 						.StartAsync(async ctx =>
 						{
-							permission.Value = Permission.Granted;
-							//permission.Timestamp = DateTime.UtcNow;
-							permission.ClearChangeMasks(SystemContext, false);
-
-							downlinkStatus.Value = DownlinkStatus.Scheduled;
-							downlinkStatus.ClearChangeMasks(SystemContext, false);
+							UpdatePermission(Permission.Granted);
+							UpdateDownlinkStatus(DownlinkStatus.Scheduled);
 
 							// Define tasks
 							var task1 = ctx.AddTask("[green]The Downlink Progress[/]");
 							var task2 = ctx.AddTask("second");
 							var task3 = ctx.AddTask("third");
+							_downlinkCancellationTokenSource.Token.Register(() =>
+							{
+								task3.Value = 100;
+								task2.Value = 100;
+								task1.Value = 100;
+							});
 							task3.Value = 100;
 							task3.IsIndeterminate = true;
 							while (!ctx.IsFinished)
@@ -320,14 +318,11 @@ public partial class ReferenceNodeManager
 									delayed++;
 									task2.Increment(1 / requestData.DelaySeconds * 100);
 									task1.Value(delayed / totalSeconds * 100);
-									percentComplete.Value = (delayed / totalSeconds) * 100;
-									percentComplete.ClearChangeMasks(SystemContext, false);
-									durationRemainingSeconds.Value = totalSeconds - delayed;
-									durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
-
+									UpdatePercentComplete((delayed / totalSeconds) * 100);
+									UpdateDurationRemainingSeconds(totalSeconds - delayed);
 								}
-								downlinkStatus.Value = DownlinkStatus.Running;
-								downlinkStatus.ClearChangeMasks(SystemContext, false);
+								UpdateDownlinkStatus(DownlinkStatus.Running);
+
 								// downlink
 								double symTimes = 0;
 								task3.Value = 0;
@@ -340,11 +335,8 @@ public partial class ReferenceNodeManager
 									await Task.Delay(Convert.ToInt32(sym.RampTimeMs));
 
 									symTimes += (sym.RampTimeMs) / 1000;
-									percentComplete.Value = ((delayed + symTimes) / totalSeconds) * 100;
-									percentComplete.ClearChangeMasks(SystemContext, false);
-
-									durationRemainingSeconds.Value = totalSeconds - delayed - symTimes;
-									durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+									UpdatePercentComplete(((delayed + symTimes) / totalSeconds) * 100);
+									UpdateDurationRemainingSeconds(totalSeconds - delayed - symTimes);
 
 									task1.Value((delayed + symTimes) / totalSeconds * 100);
 
@@ -354,41 +346,29 @@ public partial class ReferenceNodeManager
 									await Task.Delay(Convert.ToInt32(sym.HoldTimeMs));
 
 									symTimes += (sym.HoldTimeMs) / 1000;
-									percentComplete.Value = ((delayed + symTimes) / totalSeconds) * 100;
-									percentComplete.ClearChangeMasks(SystemContext, false);
-
-									durationRemainingSeconds.Value = totalSeconds - delayed - symTimes;
-									durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+									UpdatePercentComplete(((delayed + symTimes) / totalSeconds) * 100);
+									UpdateDurationRemainingSeconds(totalSeconds - delayed - symTimes);
 
 									task1.Value((delayed + symTimes) / totalSeconds * 100);
 									task2.Value = 100;
 								}
 
 								task3.Value = 100;
-								percentComplete.Value = 100;
-								percentComplete.ClearChangeMasks(SystemContext, false);
+								UpdatePercentComplete(100);
+								UpdateDurationRemainingSeconds(0);
 
-								durationRemainingSeconds.Value = 0;
-								durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
-
-								downlinkStatus.Value = DownlinkStatus.Completed;
-								downlinkStatus.ClearChangeMasks(SystemContext, false);								percentComplete.Value = 100;
-								percentComplete.ClearChangeMasks(SystemContext, false);
-
-								percentComplete.Value = 0;
-								percentComplete.ClearChangeMasks(SystemContext, false);
+								UpdateDownlinkStatus(DownlinkStatus.Completed);
+								UpdatePercentComplete(100);
+								UpdatePercentComplete(0);
 							}
-						}));
+						}), _downlinkCancellationTokenSource.Token);
 
 				//}
 			}
 			else
 			{
-				permission.Value = Permission.Denied;
-				permission.ClearChangeMasks(SystemContext, false);
-
+				UpdatePermission(Permission.Denied);
 			}
-
 
 			//});
 			return ServiceResult.Good;
@@ -397,6 +377,30 @@ public partial class ReferenceNodeManager
 		{
 			return new ServiceResult(StatusCodes.BadInvalidArgument);
 		}
+	}
+
+	private void UpdateDurationRemainingSeconds(double value)
+	{
+		durationRemainingSeconds.Value = value;
+		durationRemainingSeconds.ClearChangeMasks(SystemContext, false);
+	}
+
+	private void UpdateDownlinkStatus(DownlinkStatus value)
+	{
+		downlinkStatus.Value = value;
+		downlinkStatus.ClearChangeMasks(SystemContext, false);
+	}
+
+	private void UpdatePercentComplete(double value)
+	{
+		percentComplete.Value = value;
+		percentComplete.ClearChangeMasks(SystemContext, false);
+	}
+	private void UpdatePermission(Permission permissionValue)
+	{
+		permission.Value = permissionValue;
+		permission.Timestamp = DateTime.UtcNow;
+		permission.ClearChangeMasks(SystemContext, false);
 	}
 
 	private static void ShowReceivedDownlinkRequest(DownlinkRequestData requestData)
@@ -410,12 +414,6 @@ public partial class ReferenceNodeManager
 				.BorderColor(Color.Yellow));
 	}
 
-	private void UpdatePermission(Permission permissionValue)
-	{
-		permission.Value = permissionValue;
-		permission.Timestamp = DateTime.UtcNow;
-		permission.ClearChangeMasks(SystemContext, false);
-	}
 
 	private static DownlinkRequestData ParseDownlinkRequestData(IList<object> inputArguments)
 	{
@@ -456,6 +454,8 @@ public partial class ReferenceNodeManager
 		IList<object> outputArguments)
 	{
 		// todo
+		UpdateDownlinkStatus(DownlinkStatus.Aborted);
+		_downlinkCancellationTokenSource.Cancel();
 		return ServiceResult.Good;
 	}
 	#endregion

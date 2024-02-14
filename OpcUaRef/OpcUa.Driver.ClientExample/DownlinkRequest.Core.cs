@@ -97,7 +97,7 @@ internal partial class DownlinkRequest
 		}
 	}
 
-	private DownlinkStateData _DownlinkStateData = new() { RequestedDownlinkId = UInt32.MinValue };
+	private DownlinkStateData _DownlinkStateData = new();
 	private AutoResetEvent? _DonwlinkStatusUpdated = new(false);
 	private void DownlinkStatusMonitor()
 	{
