@@ -18,7 +18,7 @@ public partial class ReferenceNodeManager
 		var downlinkObj = CreateObject(root, "DownlinkRequest", "DownlinkRequest");
 
 		ConfigSendDownlinkRequestMethod(downlinkObj);
-		ConfigCancelDownlinkRequestMethod(downlinkObj);
+		ConfigAbortDownlinkRequestMethod(downlinkObj);
 		DownlinkStateDate();
 		//timer = new System.Threading.Timer(o =>
 		//{
@@ -137,21 +137,21 @@ public partial class ReferenceNodeManager
 
 		sendDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
 	}
-	private void ConfigCancelDownlinkRequestMethod(BaseObjectState downlinkObj)
+	private void ConfigAbortDownlinkRequestMethod(BaseObjectState downlinkObj)
 	{
-		var cancelDownlinkRequest = CreateMethod(downlinkObj, "CancelDownlinkRequest", "CancelDownlinkRequest");
+		var AbortDownlinkRequest = CreateMethod(downlinkObj, "AbortDownlinkRequest", "AbortDownlinkRequest");
 		// set input arguments
-		cancelDownlinkRequest.InputArguments = new PropertyState<Argument[]>(cancelDownlinkRequest);
-		cancelDownlinkRequest.InputArguments.NodeId =
-			new NodeId(cancelDownlinkRequest.BrowseName.Name + "InArgs", NamespaceIndex);
-		cancelDownlinkRequest.InputArguments.BrowseName = BrowseNames.InputArguments;
-		cancelDownlinkRequest.InputArguments.DisplayName = cancelDownlinkRequest.InputArguments.BrowseName.Name;
-		cancelDownlinkRequest.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
-		cancelDownlinkRequest.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
-		cancelDownlinkRequest.InputArguments.DataType = DataTypeIds.Argument;
-		cancelDownlinkRequest.InputArguments.ValueRank = ValueRanks.OneDimension;
+		AbortDownlinkRequest.InputArguments = new PropertyState<Argument[]>(AbortDownlinkRequest);
+		AbortDownlinkRequest.InputArguments.NodeId =
+			new NodeId(AbortDownlinkRequest.BrowseName.Name + "InArgs", NamespaceIndex);
+		AbortDownlinkRequest.InputArguments.BrowseName = BrowseNames.InputArguments;
+		AbortDownlinkRequest.InputArguments.DisplayName = AbortDownlinkRequest.InputArguments.BrowseName.Name;
+		AbortDownlinkRequest.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
+		AbortDownlinkRequest.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+		AbortDownlinkRequest.InputArguments.DataType = DataTypeIds.Argument;
+		AbortDownlinkRequest.InputArguments.ValueRank = ValueRanks.OneDimension;
 
-		cancelDownlinkRequest.InputArguments.Value = new Argument[]
+		AbortDownlinkRequest.InputArguments.Value = new Argument[]
 		{
 			new()
 			{
@@ -205,17 +205,17 @@ public partial class ReferenceNodeManager
 		};
 
 		// set output arguments
-		cancelDownlinkRequest.OutputArguments = new PropertyState<Argument[]>(cancelDownlinkRequest);
-		cancelDownlinkRequest.OutputArguments.NodeId =
-			new NodeId(cancelDownlinkRequest.BrowseName.Name + "OutArgs", NamespaceIndex);
-		cancelDownlinkRequest.OutputArguments.BrowseName = BrowseNames.OutputArguments;
-		cancelDownlinkRequest.OutputArguments.DisplayName = cancelDownlinkRequest.OutputArguments.BrowseName.Name;
-		cancelDownlinkRequest.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
-		cancelDownlinkRequest.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
-		cancelDownlinkRequest.OutputArguments.DataType = DataTypeIds.Argument;
-		cancelDownlinkRequest.OutputArguments.ValueRank = ValueRanks.OneDimension;
+		AbortDownlinkRequest.OutputArguments = new PropertyState<Argument[]>(AbortDownlinkRequest);
+		AbortDownlinkRequest.OutputArguments.NodeId =
+			new NodeId(AbortDownlinkRequest.BrowseName.Name + "OutArgs", NamespaceIndex);
+		AbortDownlinkRequest.OutputArguments.BrowseName = BrowseNames.OutputArguments;
+		AbortDownlinkRequest.OutputArguments.DisplayName = AbortDownlinkRequest.OutputArguments.BrowseName.Name;
+		AbortDownlinkRequest.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
+		AbortDownlinkRequest.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+		AbortDownlinkRequest.OutputArguments.DataType = DataTypeIds.Argument;
+		AbortDownlinkRequest.OutputArguments.ValueRank = ValueRanks.OneDimension;
 
-		cancelDownlinkRequest.OutputArguments.Value = new Argument[]
+		AbortDownlinkRequest.OutputArguments.Value = new Argument[]
 		{
 			new()
 			{
@@ -244,7 +244,7 @@ public partial class ReferenceNodeManager
 			}
 		};
 
-		cancelDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
+		AbortDownlinkRequest.OnCallMethod = new GenericMethodCalledEventHandler(OnRequestDownlinkCall);
 	}
 
 	private System.Threading.Timer timer;

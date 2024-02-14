@@ -41,7 +41,7 @@
 		</RejectedCertificateStore>
 
 		<!-- WARNING: The following setting (to automatically accept untrusted certificates) should be used for easy debugging purposes ONLY and turned off for production deployments! -->
-		<AutoAcceptUntrustedCertificates>false</AutoAcceptUntrustedCertificates>
+		<AutoAcceptUntrustedCertificates>true</AutoAcceptUntrustedCertificates>
 
 		<!-- WARNING: SHA1 signed certificate are by default rejected and should be phased out. only nano and embedded profiles are allowed to use sha1 signed certificates. -->
 		<RejectSHA1SignedCertificates>true</RejectSHA1SignedCertificates>

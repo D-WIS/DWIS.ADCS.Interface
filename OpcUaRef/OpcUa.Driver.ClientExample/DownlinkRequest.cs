@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Opc.Ua.Client;
 using Opc.Ua;
-using OpcUa.Driver;
 using DWIS.ADCS.Operational.Downlink;
 using OpcUa.Driver.Client;
 using Spectre.Console;
@@ -61,7 +60,7 @@ internal class DownlinkRequest
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
 	}
 
-	public void CancelRequest(int requestId)
+	public void AbortRequest(int requestId)
 	{
 
 	}

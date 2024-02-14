@@ -76,6 +76,7 @@ public partial class OpcUaClient: IOpcUaClient
 					DisplayName = item.DisplayName,
 					QueueSize = queueSize,
 					DiscardOldest = true,
+					CacheQueueSize = 
 					//MonitoringMode = MonitoringMode.Reporting,
 				};
 				monitoredItem.Notification += item.ValueChangeHandler;
