@@ -32,9 +32,11 @@ internal class DownlinkRequest
 				if (keyinfo.Key == ConsoleKey.S)
 				{
 					CallRequestDownlink();
-				} else if (keyinfo.Key == ConsoleKey.C)
+				}
+				else if (keyinfo.Key == ConsoleKey.A)
 				{
-					//CancelRequest();
+					// abort the last active downlink request
+					CallAbortDownlinkRequest();
 				}
 
 				await Task.Delay(500);
@@ -60,60 +62,93 @@ internal class DownlinkRequest
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
 	}
 
-	public void AbortRequest(int requestedDownlinkId)
+	public void CallAbortDownlinkRequest()
 	{
+		var requestedDownlinkId = _downlinkStateData.RequestedDownlinkId;
+		if (requestedDownlinkId == UInt32.MinValue)
+		{
+			_logger.LogError("No Active Downlink to Abort!");
+			return;
+		}
+		// Parent node
+		var objectId = new NodeId("ns=2;s=DownlinkRequest");
+		// Method node
+		var methodId = new NodeId("ns=2;s=AbortDownlinkRequest");
+		var inputArguments = new object[]
+		{
+			requestedDownlinkId
+		};
+		var o = CallMethod(objectId, methodId, inputArguments);
+		var status = ParseDownlinkStateData(o);
 
+		var json = ConsoleExt.GetJsonText(status);
+		AnsiConsole.Write(
+			new Panel(json)
+				.Header("Received Response of Abort Downlink")
+				.Collapse()
+				.RoundedBorder()
+				.BorderColor(Color.Yellow));
 	}
+
 	public void CallRequestDownlink()
+	{
+		// Parent node
+		var objectId = new NodeId("ns=2;s=DownlinkRequest");
+		// Method node
+		var methodId = new NodeId("ns=2;s=SendDownlinkRequest");
+		// Arguments
+		var f = new float[] { (float)2000, (float)3000, (float)2000, (float)3000, (float)2000, (float)2000, (float)3000, (float)2000, (float)3300, };
+		var inputArguments = new object[] { (UInt16)0, Convert.ToUInt16(_notification.Value.Value), (float)8, (float)6, (float)5, (Int16)(-1), f };
+		var o = CallMethod(objectId, methodId, inputArguments);
+
+		var status = ParseDownlinkStateData(o);
+
+		var json = ConsoleExt.GetJsonText(status);
+		AnsiConsole.Write(
+			new Panel(json)
+				.Header("Received Response of Downlink Request")
+				.Collapse()
+				.RoundedBorder()
+				.BorderColor(Color.Yellow));
+	}
+
+	private static DownlinkStateData ParseDownlinkStateData(IList<object> o)
+	{
+		var status = new DownlinkStateData();
+		status.RequestedDownlinkId = uint.Parse(o[0].ToString());
+		status.Permission = (Permission)Enum.Parse<Permission>(o[1].ToString());
+		status.DownlinkStatus = (DownlinkStatus)Enum.Parse<DownlinkStatus>(o[2].ToString());
+		status.PercentComplete = float.Parse(o[3].ToString());
+		status.DurationRemainingSeconds = float.Parse(o[4].ToString());
+		return status;
+	}
+
+	public IList<object> CallMethod(NodeId parentNodeId, NodeId methodId, object[] args)
 	{
 		if (!_client.Session.Connected)
 		{
-			_logger.LogInformation("Session not connected!");
-			return;
+			var msg = "Session not connected!";
+			_logger.LogInformation(msg);
+			throw new Exception(msg);
 		}
 
 		try
 		{
-			if (_notification == null) return;
+			if (_notification == null) return null;
+			var msg = $"Calling Method: {methodId} for node {parentNodeId} ...";
+			_logger.LogInformation(msg);
+			var o = _client.Session.Call(parentNodeId, methodId, args);
+			return o;
 
-			// Parent node
-			var objectId = new NodeId("ns=2;s=DownlinkRequest");
-			// Method node
-			var methodId = new NodeId("ns=2;s=SendDownlinkRequest");
-			var f = new float[] { (float)2000, (float)3000, (float)2000, (float)3000, (float)2000, (float)2000, (float)3000, (float)2000, (float)3300, };
-			var inputArguments = new object[] { (UInt16)0, Convert.ToUInt16(_notification.Value.Value), (float)8, (float)6, (float)5, (Int16)(-1), f };
-
-			_logger.LogInformation("Calling SendDownlinkRequest for node {0} ...", methodId);
-			var o = _client.Session.Call(objectId, methodId, inputArguments);
-
-			//_logger.LogInformation("Method call returned {0} output argument(s):", outputArguments.Count);
-			//foreach (var outputArgument in outputArguments)
-			//{
-			//	//_logger.LogInformation("     OutputValue = {0}", outputArgument.ToString());
-
-			//}
-			var status = new DownlinkStateData();
-			status.RequestedDownlinkId = uint.Parse(o[0].ToString());
-			status.Permission = (Permission)Enum.Parse<Permission>(o[1].ToString());
-			status.DownlinkStatus = (DownlinkStatus)Enum.Parse<DownlinkStatus>(o[2].ToString());
-			status.PercentComplete = float.Parse(o[3].ToString());
-			status.DurationRemainingSeconds = float.Parse(o[4].ToString());
-
-			var json = ConsoleExt.GetJsonText(status);
-			AnsiConsole.Write(
-				new Panel(json)
-					.Header("Received Downlink Request")
-					.Collapse()
-					.RoundedBorder()
-					.BorderColor(Color.Yellow));
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError("Method call error: {0}", ex.Message);
+			throw;
 		}
 	}
 
-	private DownlinkStateData _downlinkStateData = new();
+	private DownlinkStateData _downlinkStateData = new(){RequestedDownlinkId = UInt32.MinValue};
 	private AutoResetEvent? _DonwlinkStatusUpdated = new(false);
 	private void DownlinkStatusMonitor()
 	{
@@ -157,8 +192,8 @@ internal class DownlinkRequest
 					var time = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
 					task1.Description = $"[gray]S:send[/] [green][[Permission: {_downlinkStateData.Permission}; DownlinkStatus: {_downlinkStateData.DownlinkStatus}]][/] [blue]{time}[/]";
 					// Increment
-						var v =_downlinkStateData.PercentComplete;
-						task1.Value = v;
+					var v = _downlinkStateData.PercentComplete;
+					task1.Value = v;
 
 					//task1.RemainingTime = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
 					//task2.Increment(4.5);
@@ -180,16 +215,18 @@ internal class DownlinkRequest
 			_notification = e.NotificationValue as MonitoredItemNotification;
 			var id = (string)monitoredItem.ResolvedNodeId.Identifier;
 			var value = _notification!.Value!.Value.ToString();
-			if ( id == nameof(_downlinkStateData.Permission))
+			if (id == nameof(_downlinkStateData.Permission))
 			{
-				_downlinkStateData.Permission= Enum.Parse<Permission>(value);
-			} else if (id == nameof(_downlinkStateData.DownlinkStatus))
+				_downlinkStateData.Permission = Enum.Parse<Permission>(value);
+			}
+			else if (id == nameof(_downlinkStateData.DownlinkStatus))
 			{
-				_downlinkStateData.DownlinkStatus= Enum.Parse<DownlinkStatus>(value);
-			} else if (id == nameof(_downlinkStateData.PercentComplete))
+				_downlinkStateData.DownlinkStatus = Enum.Parse<DownlinkStatus>(value);
+			}
+			else if (id == nameof(_downlinkStateData.PercentComplete))
 			{
-					var v= float.Parse(value);
-					_downlinkStateData.PercentComplete = v;
+				var v = float.Parse(value);
+				_downlinkStateData.PercentComplete = v;
 
 
 			}
