@@ -1,5 +1,4 @@
-﻿using ADCS.Interface.Share;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Opc.Ua.Client;
 using Opc.Ua;
 using DWIS.ADCS.Operational.Downlink;
@@ -8,7 +7,7 @@ using Spectre.Console;
 
 namespace OpcUa.Driver.ClientExample;
 
-internal class DownlinkRequest
+internal partial class DownlinkRequest
 {
 	private readonly ILogger _logger;
 	private readonly IOpcUaClient _client;
@@ -22,7 +21,7 @@ internal class DownlinkRequest
 	public async Task Run()
 	{
 		DownlinkStatusMonitor();
-		await SubscribeAsync();
+		await SubscribeNotificationAsync();
 		await Task.Run(async () =>
 		{
 			while (true)
@@ -44,7 +43,7 @@ internal class DownlinkRequest
 		});
 	}
 
-	public async Task SubscribeAsync()
+	public async Task SubscribeNotificationAsync()
 	{
 		var nodes = new List<SubscriptionNode>()
 		{
@@ -60,56 +59,6 @@ internal class DownlinkRequest
 		};
 
 		await _client.SubscribeAsync(nodes, 1000).ConfigureAwait(false);
-	}
-
-	public void CallAbortDownlinkRequest()
-	{
-		var requestedDownlinkId = _downlinkStateData.RequestedDownlinkId;
-		if (requestedDownlinkId == UInt32.MinValue)
-		{
-			_logger.LogError("No Active Downlink to Abort!");
-			return;
-		}
-		// Parent node
-		var objectId = new NodeId("ns=2;s=DownlinkRequest");
-		// Method node
-		var methodId = new NodeId("ns=2;s=AbortDownlinkRequest");
-		var inputArguments = new object[]
-		{
-			requestedDownlinkId
-		};
-		var o = CallMethod(objectId, methodId, inputArguments);
-		var status = ParseDownlinkStateData(o);
-
-		var json = ConsoleExt.GetJsonText(status);
-		AnsiConsole.Write(
-			new Panel(json)
-				.Header("Received Response of Abort Downlink")
-				.Collapse()
-				.RoundedBorder()
-				.BorderColor(Color.Yellow));
-	}
-
-	public void CallRequestDownlink()
-	{
-		// Parent node
-		var objectId = new NodeId("ns=2;s=DownlinkRequest");
-		// Method node
-		var methodId = new NodeId("ns=2;s=SendDownlinkRequest");
-		// Arguments
-		var f = new float[] { (float)2000, (float)3000, (float)2000, (float)3000, (float)2000, (float)2000, (float)3000, (float)2000, (float)3300, };
-		var inputArguments = new object[] { (UInt16)0, Convert.ToUInt16(_notification.Value.Value), (float)8, (float)6, (float)5, (Int16)(-1), f };
-		var o = CallMethod(objectId, methodId, inputArguments);
-
-		var status = ParseDownlinkStateData(o);
-
-		var json = ConsoleExt.GetJsonText(status);
-		AnsiConsole.Write(
-			new Panel(json)
-				.Header("Received Response of Downlink Request")
-				.Collapse()
-				.RoundedBorder()
-				.BorderColor(Color.Yellow));
 	}
 
 	private static DownlinkStateData ParseDownlinkStateData(IList<object> o)
@@ -148,7 +97,7 @@ internal class DownlinkRequest
 		}
 	}
 
-	private DownlinkStateData _downlinkStateData = new(){RequestedDownlinkId = UInt32.MinValue};
+	private DownlinkStateData _DownlinkStateData = new() { RequestedDownlinkId = UInt32.MinValue };
 	private AutoResetEvent? _DonwlinkStatusUpdated = new(false);
 	private void DownlinkStatusMonitor()
 	{
@@ -168,34 +117,26 @@ internal class DownlinkRequest
 		//		}
 		//	}));
 		Task.Run(() => AnsiConsole.Progress()
-			.Columns(new ProgressColumn[]
-			{
-				new TaskDescriptionColumn(),    // Task description
-				new ProgressBarColumn(),        // Progress bar
-				new PercentageColumn(),         // Percentage
-				//new RemainingTimeColumn(),      // Remaining time
-				new SpinnerColumn(),            // Spinner
-			})
+			.Columns(new TaskDescriptionColumn(), new ProgressBarColumn(), new PercentageColumn(), new SpinnerColumn())
 			.StartAsync(async ctx =>
 			{
 				// Define tasks
-				var task1 = ctx.AddTask("[green]S:send[/]");
+				var task1 = ctx.AddTask("[green]S:send;A:abort[/]");
 				//var task2 = ctx.AddTask("[green]Folding space[/]");
 
 				while (!ctx.IsFinished)
 				{
-
 					_DonwlinkStatusUpdated.WaitOne(2000);
 
 					// Simulate some work
 					//await Task.Delay(250);
-					var time = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
-					task1.Description = $"[gray]S:send[/] [green][[Permission: {_downlinkStateData.Permission}; DownlinkStatus: {_downlinkStateData.DownlinkStatus}]][/] [blue]{time}[/]";
+					var time = TimeSpan.FromSeconds(_DownlinkStateData.DurationRemainingSeconds);
+					task1.Description = $"[gray]S:send;A:abort[/] [green][[Permission: {_DownlinkStateData.Permission}; DownlinkStatus: {_DownlinkStateData.DownlinkStatus}]][/] [blue]{time}[/]";
 					// Increment
-					var v = _downlinkStateData.PercentComplete;
+					var v = _DownlinkStateData.PercentComplete;
 					task1.Value = v;
 
-					//task1.RemainingTime = TimeSpan.FromSeconds(_downlinkStateData.DurationRemainingSeconds);
+					//task1.RemainingTime = TimeSpan.FromSeconds(_DownlinkStateData.DurationRemainingSeconds);
 					//task2.Increment(4.5);
 					//task1.RemainingTime
 				}
@@ -215,24 +156,22 @@ internal class DownlinkRequest
 			_notification = e.NotificationValue as MonitoredItemNotification;
 			var id = (string)monitoredItem.ResolvedNodeId.Identifier;
 			var value = _notification!.Value!.Value.ToString();
-			if (id == nameof(_downlinkStateData.Permission))
+			if (id == nameof(_DownlinkStateData.Permission))
 			{
-				_downlinkStateData.Permission = Enum.Parse<Permission>(value);
+				_DownlinkStateData.Permission = Enum.Parse<Permission>(value);
 			}
-			else if (id == nameof(_downlinkStateData.DownlinkStatus))
+			else if (id == nameof(_DownlinkStateData.DownlinkStatus))
 			{
-				_downlinkStateData.DownlinkStatus = Enum.Parse<DownlinkStatus>(value);
+				_DownlinkStateData.DownlinkStatus = Enum.Parse<DownlinkStatus>(value);
 			}
-			else if (id == nameof(_downlinkStateData.PercentComplete))
+			else if (id == nameof(_DownlinkStateData.PercentComplete))
 			{
 				var v = float.Parse(value);
-				_downlinkStateData.PercentComplete = v;
-
-
+				_DownlinkStateData.PercentComplete = v;
 			}
-			else if (id == nameof(_downlinkStateData.DurationRemainingSeconds))
+			else if (id == nameof(_DownlinkStateData.DurationRemainingSeconds))
 			{
-				_downlinkStateData.DurationRemainingSeconds = float.Parse(value);
+				_DownlinkStateData.DurationRemainingSeconds = float.Parse(value);
 			}
 
 			_DonwlinkStatusUpdated.Set();
