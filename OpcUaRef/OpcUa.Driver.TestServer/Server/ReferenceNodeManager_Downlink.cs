@@ -220,59 +220,21 @@ public partial class ReferenceNodeManager
 
 		try
 		{
-			_downlinkId++;
-			outputArguments[0] = _downlinkId;
+			Interlocked.Increment(ref _downlinkId);
+			outputArguments[0] = _downlinkId; // requestedDownlinkID
 			requestedDownlinkId.Value = _downlinkId;
 
 
 			// set output parameter
-			//var n = $"DownlinkRequest{op1 * op2}";
-
-			//var downlinkObj = CreateObject(root, n, n);
-			outputArguments[4] = 0;
+			outputArguments[4] = 0; // percentComplete
 
 
-			var requestData = new DownlinkRequestData()
-			{
-				Method = (Method)inputArguments[0],
-				Type = (DownlinkTypes)inputArguments[1],
-				DurationSeconds = Convert.ToSingle(inputArguments[2]),
-				DelaySeconds = Convert.ToSingle(inputArguments[3]),
-				DelayDepth = Convert.ToSingle(inputArguments[4]),
-				DownlinkIndex = Convert.ToInt16(inputArguments[5]),
-			};
-			var symbols = inputArguments[6] as float[];
-			if (symbols != null)
-			{
-				var sym = new List<DownlinkSymbol>();
-				for (int i = 0; i < symbols.Length / 3; i++)
-				{
-					var symbol = new DownlinkSymbol()
-					{
-						RampTimeMs = symbols[i * 3],
-						HoldTimeMs = symbols[i * 3 + 1],
-						Amplitude = new Measure<float, VolumetricFlow.cubic_meters_per_second>(symbols[i * 3 + 2])
-					};
-					sym.Add((symbol));
-				}
-
-				requestData.DownlinkSymbolsArray = sym.ToArray();
-			}
-
+			var requestData = ParseDownlinkRequestData(inputArguments);
 			//Task.Run(async () =>
 			//{
+			UpdatePermission(Permission.Pending);
 
-			var downlink = ConsoleExt.GetJsonText(requestData);
-
-			permission.Value = Permission.Pending;
-			permission.Timestamp = DateTime.UtcNow;
-			permission.ClearChangeMasks(SystemContext, false);
-			AnsiConsole.Write(
-				new Panel(downlink)
-					.Header("Received Downlink Request")
-					.Collapse()
-					.RoundedBorder()
-					.BorderColor(Color.Yellow));
+			ShowReceivedDownlinkRequest(requestData);
 
 			var per = AnsiConsole.Prompt(
 				new SelectionPrompt<string>()
@@ -435,6 +397,56 @@ public partial class ReferenceNodeManager
 		{
 			return new ServiceResult(StatusCodes.BadInvalidArgument);
 		}
+	}
+
+	private static void ShowReceivedDownlinkRequest(DownlinkRequestData requestData)
+	{
+		var downlink = ConsoleExt.GetJsonText(requestData);
+		AnsiConsole.Write(
+			new Panel(downlink)
+				.Header("Received Downlink Request")
+				.Collapse()
+				.RoundedBorder()
+				.BorderColor(Color.Yellow));
+	}
+
+	private void UpdatePermission(Permission permissionValue)
+	{
+		permission.Value = permissionValue;
+		permission.Timestamp = DateTime.UtcNow;
+		permission.ClearChangeMasks(SystemContext, false);
+	}
+
+	private static DownlinkRequestData ParseDownlinkRequestData(IList<object> inputArguments)
+	{
+		var requestData = new DownlinkRequestData()
+		{
+			Method = (Method)inputArguments[0],
+			Type = (DownlinkTypes)inputArguments[1],
+			DurationSeconds = Convert.ToSingle(inputArguments[2]),
+			DelaySeconds = Convert.ToSingle(inputArguments[3]),
+			DelayDepth = Convert.ToSingle(inputArguments[4]),
+			DownlinkIndex = Convert.ToInt16(inputArguments[5]),
+		};
+		var symbols = inputArguments[6] as float[]; //DownlinkSymbol[]
+		if (symbols != null)
+		{
+			var sym = new List<DownlinkSymbol>();
+			for (int i = 0; i < symbols.Length / 3; i++)
+			{
+				var symbol = new DownlinkSymbol()
+				{
+					RampTimeMs = symbols[i * 3],
+					HoldTimeMs = symbols[i * 3 + 1],
+					Amplitude = new Measure<float, VolumetricFlow.cubic_meters_per_second>(symbols[i * 3 + 2])
+				};
+				sym.Add((symbol));
+			}
+
+			requestData.DownlinkSymbolsArray = sym.ToArray();
+		}
+
+		return requestData;
 	}
 
 	private ServiceResult OnAbortDownlinkCall(
