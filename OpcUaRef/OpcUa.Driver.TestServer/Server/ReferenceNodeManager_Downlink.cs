@@ -221,6 +221,8 @@ public partial class ReferenceNodeManager
 		try
 		{
 			Interlocked.Increment(ref _requestedDownlinkId);
+			_downlinkCancellationTokenSource = new();
+
 			outputArguments[0] = _requestedDownlinkId; 
 			requestedDownlinkId.Value = _requestedDownlinkId;
 

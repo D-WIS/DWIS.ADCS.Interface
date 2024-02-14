@@ -173,6 +173,14 @@ internal partial class DownlinkRequest
 			{
 				_DownlinkStateData.DurationRemainingSeconds = float.Parse(value);
 			}
+			else if (id == nameof(_DownlinkStateData.RequestedDownlinkId))
+			{
+				_DownlinkStateData.RequestedDownlinkId = UInt32.Parse(value);
+			}
+			else
+			{
+				throw new Exception("unhandled OnMonitoredItemNotification ");
+			}
 
 			_DonwlinkStatusUpdated.Set();
 
